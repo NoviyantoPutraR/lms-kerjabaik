@@ -1,0 +1,743 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/komponen/ui/card";
+import { Button } from "@/komponen/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/komponen/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/komponen/ui/table";
+import { Badge } from "@/komponen/ui/badge";
+import { Skeleton } from "@/komponen/ui/skeleton";
+import { SearchInput } from "@/komponen/ui/SearchInput";
+import { SortableTableHeader } from "@/komponen/ui/SortableTableHeader";
+import {
+  Filter,
+  Eye,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ThumbsUp,
+  ThumbsDown,
+  FileText,
+  Check,
+  Square,
+  Calendar,
+} from "lucide-react";
+import { useSubmissions, useGradeSubmission } from "../hooks/useAssessments";
+import { useInstructorCourses } from "../hooks/useInstructorCourses";
+import { useTableSort } from "@/hooks/useTableSort";
+import { useDebounce } from "@/hooks/useDebounce";
+import type { SubmissionFilters, Submission } from "../tipe/instructor.types";
+import { formatDistanceToNow } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+import { GradingDialog } from "@/fitur/instruktur/komponen/GradingDialog";
+import { InlineGradeInput } from "@/fitur/instruktur/komponen/InlineGradeInput";
+import { ConfirmDialog } from "@/komponen/ui/ConfirmDialog";
+import { toast } from "sonner";
+
+export default function AssessmentCenterPage() {
+  const [filters, setFilters] = useState<SubmissionFilters>({
+    page: 1,
+    limit: 20,
+  });
+  const [dateFilter, setDateFilter] = useState<string>("all");
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<
+    string | null
+  >(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [editingGradeId, setEditingGradeId] = useState<string | null>(null);
+  const [confirmReject, setConfirmReject] = useState<{
+    open: boolean;
+    submissionId: string | null;
+  }>({ open: false, submissionId: null });
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmBulkAction, setConfirmBulkAction] = useState<{
+    open: boolean;
+    aksi: "approve" | "reject" | null;
+  }>({ open: false, aksi: null });
+
+  // Debounce search to avoid excessive API calls
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  const { data: submissions, isLoading } = useSubmissions(filters);
+  const { data: courses } = useInstructorCourses({ limit: 100 });
+  const gradeSubmissionMutation = useGradeSubmission();
+
+  // Helper function to get date range based on filter
+  const getDateRange = (filter: string) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    switch (filter) {
+      case "today":
+        return {
+          date_from: today.toISOString().split('T')[0],
+          date_to: undefined,
+        };
+      case "7days":
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+        return {
+          date_from: sevenDaysAgo.toISOString().split('T')[0],
+          date_to: undefined,
+        };
+      case "30days":
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        return {
+          date_from: thirtyDaysAgo.toISOString().split('T')[0],
+          date_to: undefined,
+        };
+      case "recent":
+        const threeDaysAgo = new Date(today);
+        threeDaysAgo.setDate(today.getDate() - 3);
+        return {
+          date_from: threeDaysAgo.toISOString().split('T')[0],
+          date_to: undefined,
+        };
+      default:
+        return {
+          date_from: undefined,
+          date_to: undefined,
+        };
+    }
+  };
+
+  // Handle date filter change
+  const handleDateFilterChange = (value: string) => {
+    setDateFilter(value);
+    const dateRange = getDateRange(value);
+    setFilters((prev) => ({
+      ...prev,
+      ...dateRange,
+      page: 1,
+    }));
+  };
+
+  // Client-side sorting and filtering
+  const filteredSubmissions = (submissions?.data || []).filter((sub) => {
+    if (!debouncedSearch) return true;
+    const query = debouncedSearch.toLowerCase();
+    return (
+      sub.student_name.toLowerCase().includes(query) ||
+      sub.student_email.toLowerCase().includes(query) ||
+      sub.assignment_title.toLowerCase().includes(query)
+    );
+  });
+
+  const { sortConfig, sortedData, handleSort } = useTableSort(
+    filteredSubmissions,
+    {
+      storageKey: "assessment-center-sort",
+      defaultSort: { key: "submitted_at", direction: "asc" },
+    },
+  );
+
+  const statusColors = {
+    pending: "secondary",
+    graded: "default",
+    rejected: "destructive",
+    revision_requested: "outline",
+  } as const;
+
+  const statusLabels = {
+    pending: "Menunggu",
+    graded: "Dinilai",
+    rejected: "Ditolak",
+    revision_requested: "Revisi",
+  };
+
+  const statusIcons = {
+    pending: Clock,
+    graded: CheckCircle2,
+    rejected: XCircle,
+    revision_requested: Clock,
+  };
+
+  // Quick aksi handlers
+  const handleQuickGrade = async (submissionId: string, grade: number) => {
+    await gradeSubmissionMutation.mutateAsync({
+      submissionId,
+      gradeData: {
+        grade,
+        status: "graded",
+      },
+    });
+    toast.success(`Nilai ${grade} berhasil disimpan`);
+    setEditingGradeId(null);
+  };
+
+  const handleQuickApprove = async (submission: Submission) => {
+    await gradeSubmissionMutation.mutateAsync({
+      submissionId: submission.id,
+      gradeData: {
+        grade: submission.assignment_max_score || 100,
+        status: "graded",
+        feedback: "Approved",
+      },
+    });
+    toast.success("Submission approved", {
+      description: `${submission.student_name} - ${submission.assignment_max_score || 100} points`
+    });
+  };
+
+  const handleQuickReject = async (submissionId: string) => {
+    setConfirmReject({ open: true, submissionId });
+  };
+
+  const confirmQuickReject = async () => {
+    if (!confirmReject.submissionId) return;
+
+    await gradeSubmissionMutation.mutateAsync({
+      submissionId: confirmReject.submissionId,
+      gradeData: {
+        grade: 0,
+        status: "rejected",
+        feedback: "Rejected",
+      },
+    });
+
+    toast.success("Submission rejected");
+    setConfirmReject({ open: false, submissionId: null });
+  };
+
+  // Bulk selection handlers
+  const toggleSelectAll = () => {
+    if (selectedIds.size === sortedData.length && sortedData.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(sortedData.map((s) => s.id)));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkApprove = () => {
+    setConfirmBulkAction({ open: true, aksi: "approve" });
+  };
+
+  const handleBulkReject = () => {
+    setConfirmBulkAction({ open: true, aksi: "reject" });
+  };
+
+  const confirmBulkActionHandler = async () => {
+    if (!confirmBulkAction.aksi || selectedIds.size === 0) return;
+
+    const ids = Array.from(selectedIds);
+    const status = confirmBulkAction.aksi === "approve" ? "graded" : "rejected";
+    const grade = confirmBulkAction.aksi === "approve" ? 100 : 0;
+    const feedback =
+      confirmBulkAction.aksi === "approve" ? "Bulk Approved" : "Bulk Rejected";
+
+    try {
+      await Promise.all(
+        ids.map((id) =>
+          gradeSubmissionMutation.mutateAsync({
+            submissionId: id,
+            gradeData: { grade, status, feedback },
+          }),
+        ),
+      );
+      toast.success(
+        `Berhasil ${confirmBulkAction.aksi === "approve" ? "menyetujui" : "menolak"
+        } ${ids.length} submission`,
+      );
+      setSelectedIds(new Set());
+    } catch (error) {
+      toast.error("Gagal melakukan aksi massal");
+    } finally {
+      setConfirmBulkAction({ open: false, aksi: null });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Pusat Penilaian
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Kelola dan nilai submission dari peserta
+          </p>
+        </div>
+
+        {/* Progress Stats */}
+        {submissions && submissions.count > 0 && (
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Progress</p>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="secondary" className="font-mono">
+                  {submissions.data.filter(s => s.status === "pending").length} Pending
+                </Badge>
+                <span className="text-muted-foreground">/</span>
+                <Badge variant="default" className="font-mono">
+                  {submissions.data.filter(s => s.status === "graded").length} Graded
+                </Badge>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4">
+            {/* Search */}
+            <SearchInput
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onClear={() => setSearchQuery("")}
+              placeholder="Cari peserta, email, atau assignment..."
+              className="w-full"
+            />
+
+            {/* Filters Row */}
+            <div className="flex flex-col gap-4 md:flex-row">
+              <Select
+                value={filters.id_kursus || "all"}
+                onValueChange={(value) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    id_kursus: value === "all" ? undefined : value,
+                    page: 1,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full md:w-[250px]">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Pilih Kursus" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kursus</SelectItem>
+                  {courses?.data.map((course) => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.judul}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.status || "all"}
+                onValueChange={(value) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    status: value === "all" ? undefined : (value as any),
+                    page: 1,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full md:w-[200px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="pending">Menunggu</SelectItem>
+                  <SelectItem value="graded">Dinilai</SelectItem>
+                  <SelectItem value="rejected">Ditolak</SelectItem>
+                  <SelectItem value="revision_requested">Revisi</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={dateFilter}
+                onValueChange={handleDateFilterChange}
+              >
+                <SelectTrigger className="w-full md:w-[200px]">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Waktu" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Waktu</SelectItem>
+                  <SelectItem value="recent">Terbaru (3 hari)</SelectItem>
+                  <SelectItem value="today">Hari Ini</SelectItem>
+                  <SelectItem value="7days">7 Hari Terakhir</SelectItem>
+                  <SelectItem value="30days">30 Hari Terakhir</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Submissions Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Submissions</CardTitle>
+            <div className="flex items-center gap-4">
+              {selectedIds.size > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {selectedIds.size} selected
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    onClick={handleBulkApprove}
+                  >
+                    <ThumbsUp className="mr-2 h-4 w-4" />
+                    Approve All
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={handleBulkReject}
+                  >
+                    <ThumbsDown className="mr-2 h-4 w-4" />
+                    Reject All
+                  </Button>
+                </div>
+              )}
+              {submissions && submissions.count > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Total: {submissions.count} submissions
+                </p>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-3">
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : sortedData.length > 0 ? (
+            <>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">
+                        <button
+                          onClick={toggleSelectAll}
+                          className="flex items-center justify-center w-full h-full"
+                          aria-label="Select all"
+                        >
+                          {selectedIds.size === sortedData.length && sortedData.length > 0 ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Square className="h-4 w-4" />
+                          )}
+                        </button>
+                      </TableHead>
+                      <SortableTableHeader
+                        sortKey="student_name"
+                        currentSortKey={sortConfig.key as string}
+                        currentDirection={sortConfig.direction}
+                        onSort={(key) => handleSort(key as keyof Submission)}
+                      >
+                        Peserta
+                      </SortableTableHeader>
+                      <TableHead>Kursus</TableHead>
+                      <TableHead>Assignment</TableHead>
+                      <TableHead>File</TableHead>
+                      <SortableTableHeader
+                        sortKey="submitted_at"
+                        currentSortKey={sortConfig.key as string}
+                        currentDirection={sortConfig.direction}
+                        onSort={(key) => handleSort(key as keyof Submission)}
+                      >
+                        Submitted
+                      </SortableTableHeader>
+                      <SortableTableHeader
+                        sortKey="status"
+                        currentSortKey={sortConfig.key as string}
+                        currentDirection={sortConfig.direction}
+                        onSort={(key) => handleSort(key as keyof Submission)}
+                      >
+                        Status
+                      </SortableTableHeader>
+                      <SortableTableHeader
+                        sortKey="grade"
+                        currentSortKey={sortConfig.key as string}
+                        currentDirection={sortConfig.direction}
+                        onSort={(key) => handleSort(key as keyof Submission)}
+                      >
+                        Nilai
+                      </SortableTableHeader>
+                      <TableHead className="text-right">Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedData.map((submission) => {
+                      const StatusIcon = statusIcons[submission.status];
+                      const isEditing = editingGradeId === submission.id;
+                      return (
+                        <TableRow key={submission.id}>
+                          <TableCell>
+                            <button
+                              onClick={() => toggleSelect(submission.id)}
+                              className="flex items-center justify-center w-full h-full"
+                              aria-label={`Select submission from ${submission.student_name}`}
+                            >
+                              {selectedIds.has(submission.id) ? (
+                                <Check className="h-4 w-4 text-primary" />
+                              ) : (
+                                <Square className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </button>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">
+                                {submission.student_name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {submission.student_email}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-[200px]">
+                            <p className="truncate">
+                              {submission.kursus_judul}
+                            </p>
+                          </TableCell>
+                          <TableCell className="max-w-[200px]">
+                            <p className="truncate">
+                              {submission.assignment_title}
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            {submission.url_berkas ? (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 text-xs"
+                                asChild
+                              >
+                                <a
+                                  href={submission.url_berkas}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1"
+                                >
+                                  <FileText className="h-3 w-3" />
+                                  View
+                                </a>
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">
+                                No file
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <p className="text-sm">
+                              {formatDistanceToNow(
+                                new Date(submission.submitted_at),
+                                {
+                                  addSuffix: true,
+                                  locale: idLocale,
+                                },
+                              )}
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={statusColors[submission.status]}>
+                              <StatusIcon className="mr-1 h-3 w-3" />
+                              {statusLabels[submission.status]}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {isEditing ? (
+                              <InlineGradeInput
+                                submissionId={submission.id}
+                                currentGrade={submission.grade}
+                                maxScore={
+                                  submission.assignment_max_score || 100
+                                }
+                                onSave={handleQuickGrade}
+                                onCancel={() => setEditingGradeId(null)}
+                              />
+                            ) : submission.grade !== null ? (
+                              <span className="font-medium">
+                                {submission.grade}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {submission.status === "pending" &&
+                                !isEditing && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                                      onClick={() =>
+                                        handleQuickApprove(submission)
+                                      }
+                                      title="Quick Approve (Max Score)"
+                                    >
+                                      <ThumbsUp className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      onClick={() =>
+                                        handleQuickReject(submission.id)
+                                      }
+                                      title="Quick Reject"
+                                    >
+                                      <ThumbsDown className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 text-xs"
+                                      onClick={() =>
+                                        setEditingGradeId(submission.id)
+                                      }
+                                      title="Quick Grade"
+                                    >
+                                      Nilai
+                                    </Button>
+                                  </>
+                                )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() =>
+                                  setSelectedSubmissionId(submission.id)
+                                }
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                {submission.status === "pending"
+                                  ? "Detail"
+                                  : "Lihat"}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination */}
+              {submissions && submissions.totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        page: Math.max(1, prev.page! - 1),
+                      }))
+                    }
+                    disabled={filters.page === 1}
+                  >
+                    Sebelumnya
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Halaman {filters.page} dari {submissions.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        page: Math.min(
+                          submissions?.totalPages || 1,
+                          prev.page! + 1,
+                        ),
+                      }))
+                    }
+                    disabled={filters.page === submissions.totalPages}
+                  >
+                    Selanjutnya
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Clock className="h-16 w-16 text-muted-foreground/50" />
+              <h3 className="mt-4 text-lg font-semibold">
+                Tidak ada submission
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {filters.id_kursus || filters.status
+                  ? "Coba ubah filter pencarian Anda"
+                  : "Belum ada submission dari peserta"}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Grading Dialog */}
+      {selectedSubmissionId && (
+        <GradingDialog
+          submissionId={selectedSubmissionId}
+          open={!!selectedSubmissionId}
+          onOpenChange={(open: boolean) => {
+            if (!open) setSelectedSubmissionId(null);
+          }}
+        />
+      )}
+
+      {/* Confirm Reject Dialog */}
+      <ConfirmDialog
+        open={confirmReject.open}
+        onOpenChange={(open) =>
+          setConfirmReject({ open, submissionId: null })
+        }
+        title="Reject Submission?"
+        description="Peserta akan menerima notifikasi bahwa submission mereka ditolak. Anda masih bisa mengubah status ini nanti."
+        confirmText="Ya, Reject"
+        cancelText="Batal"
+        onConfirm={confirmQuickReject}
+        variant="destructive"
+      />
+
+      <ConfirmDialog
+        open={confirmBulkAction.open}
+        onOpenChange={(open) =>
+          setConfirmBulkAction({ open, aksi: null })
+        }
+        title={`${confirmBulkAction.aksi === "approve" ? "Approve" : "Reject"
+          } ${selectedIds.size} Submissions?`}
+        description={`Anda akan ${confirmBulkAction.aksi === "approve" ? "menyetujui" : "menolak"
+          } ${selectedIds.size} submission sekaligus. Aksi ini tidak dapat dibatalkan.`}
+        confirmText="Ya, Lanjutkan"
+        cancelText="Batal"
+        onConfirm={confirmBulkActionHandler}
+        variant={
+          confirmBulkAction.aksi === "approve" ? "default" : "destructive"
+        }
+      />
+    </div>
+  );
+}

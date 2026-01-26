@@ -1,0 +1,37 @@
+﻿
+> lms-academy-frontend@0.1.0 build
+> tsc && vite build
+
+src/fitur/admin/hooks/useAdminCourses.ts(116,17): error TS6133: 'data' is declared but its value is never read.
+src/fitur/admin/hooks/useAdminCourses.ts(146,17): error TS6133: 'data' is declared but its value is never read.
+src/fitur/admin/komponen/DialogPenggunaAdmin.tsx(25,1): error TS6133: 'useAuthStore' is declared but its value is never read.
+src/fitur/dasbor/pages/SuperadminDashboard.tsx(14,38): error TS6133: 'overviewLoading' is declared but its value is never read.
+src/fitur/instruktur/api/studentProgressApi.ts(7,3): error TS6196: 'ModuleProgress' is declared but never used.
+src/fitur/instruktur/api/studentProgressApi.ts(9,3): error TS6196: 'ActivityLog' is declared but never used.
+src/fitur/instruktur/api/studentProgressApi.ts(269,3): error TS6133: 'kursusId' is declared but its value is never read.
+src/fitur/instruktur/api/studentProgressApi.ts(270,3): error TS6133: 'studentId' is declared but its value is never read.
+src/fitur/instruktur/hooks/useContent.ts(69,7): error TS6133: 'moduleId' is declared but its value is never read.
+src/fitur/instruktur/hooks/useInstructorCourses.ts(1,20): error TS6133: 'useMutation' is declared but its value is never read.
+src/fitur/instruktur/hooks/useInstructorCourses.ts(1,33): error TS6133: 'useQueryClient' is declared but its value is never read.
+src/fitur/instruktur/hooks/useInstructorCourses.ts(8,1): error TS6133: 'toast' is declared but its value is never read.
+src/fitur/instruktur/hooks/useModules.ts(103,7): error TS6133: 'kursusId' is declared but its value is never read.
+src/fitur/instruktur/komponen/ModuleContentEditor.tsx(47,1): error TS6192: All imports in import declaration are unused.
+src/fitur/instruktur/pages/AssessmentCenterPage.tsx(170,9): error TS6133: 'toggleSelect' is declared but its value is never read.
+src/fitur/instruktur/pages/AssessmentCenterPage.tsx(189,9): error TS6133: 'confirmBulkActionHandler' is declared but its value is never read.
+src/fitur/pembelajar/komponen/LearningSidebar.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.
+src/fitur/pembelajar/komponen/LearningSidebar.tsx(4,5): error TS6133: 'Circle' is declared but its value is never read.
+src/fitur/pembelajar/komponen/LearningSidebar.tsx(7,5): error TS6133: 'ChevronDown' is declared but its value is never read.
+src/fitur/pembelajar/komponen/LearningSidebar.tsx(18,23): error TS6196: 'Module' is declared but never used.
+src/fitur/pembelajar/komponen/LearningSidebar.tsx(18,31): error TS6196: 'Material' is declared but never used.
+src/fitur/pembelajar/pages/AssessmentResultPage.tsx(176,49): error TS6133: 'index' is declared but its value is never read.
+src/fitur/pembelajar/pages/AssessmentsListPage.tsx(30,1): error TS6133: 'supabase' is declared but its value is never read.
+src/fitur/pembelajar/pages/AssessmentsListPage.tsx(37,27): error TS6196: 'AssignmentSubmission' is declared but never used.
+src/fitur/pembelajar/pages/LearningRoomPage.tsx(23,1): error TS6133: 'LearningProgressHeader' is declared but its value is never read.
+src/fitur/pembelajar/pages/LearningRoomPage.tsx(24,1): error TS6133: 'DynamicBreadcrumb' is declared but its value is never read.
+src/fitur/pembelajar/pages/TakeAssessmentPage.tsx(8,5): error TS6133: 'CheckCircle2' is declared but its value is never read.
+src/fitur/pembelajar/pages/TakeAssessmentPage.tsx(11,1): error TS6192: All imports in import declaration are unused.
+src/fitur/pembelajar/pages/TakeAssessmentPage.tsx(12,1): error TS6133: 'Badge' is declared but its value is never read.
+src/fitur/superadmin/api/analyticsApi.ts(65,3): error TS6133: 'filters' is declared but its value is never read.
+src/fitur/superadmin/api/auditLogsApi.ts(3,3): error TS6196: 'AuditLog' is declared but never used.
+src/fitur/superadmin/komponen/TenantTable.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.
+src/fitur/superadmin/pages/AuditLogsPage.tsx(13,10): error TS6133: 'Search' is declared but its value is never read.
