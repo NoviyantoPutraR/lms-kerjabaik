@@ -115,16 +115,16 @@ export function CoursesPage() {
             <Link key={course.id} to={`/pembelajar/kursus/${course.id}`}>
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
                 {/* Thumbnail */}
-                <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600">
+                <div className="relative h-44 bg-muted overflow-hidden">
                   {course.url_gambar_mini ? (
                     <img
                       src={course.url_gambar_mini}
                       alt={course.judul}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <BookOpen className="h-16 w-16 text-white/50" />
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10">
+                      <BookOpen className="h-12 w-12 text-primary/20" />
                     </div>
                   )}
                 </div>
