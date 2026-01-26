@@ -438,7 +438,7 @@ export function HalamanKursusAdmin() {
                   <div className="flex items-center justify-between gap-4 text-[11px] text-zinc-500 font-bold uppercase tracking-wider">
                     <div className="flex items-center gap-1.5 ">
                       <Users className="w-3.5 h-3.5" />
-                      <span>{(course as any).enrollment_count || 0} Pendaftar</span>
+                      <span>{course.enrollment_count || 0} Pendaftar</span>
                     </div>
                     {course.durasi_menit && (
                       <span>{course.durasi_menit} Menit</span>

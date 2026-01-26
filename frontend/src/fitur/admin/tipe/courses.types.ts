@@ -19,6 +19,7 @@ export interface KursusWithInstructor extends Kursus {
     nama_lengkap: string;
     email: string;
   } | null;
+  enrollment_count?: number;
 }
 
 /**

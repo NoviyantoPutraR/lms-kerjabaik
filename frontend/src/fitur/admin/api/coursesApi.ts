@@ -38,7 +38,8 @@ export async function getAdminCourses(
         id,
         nama_lengkap,
         email
-      )
+      ),
+      pendaftaran_kursus(count)
     `,
       { count: "exact" },
     )
@@ -76,8 +77,13 @@ export async function getAdminCourses(
 
   if (error) throw error;
 
+  const coursesWithEnrollment = (data || []).map((course: any) => ({
+    ...course,
+    enrollment_count: course.pendaftaran_kursus?.[0]?.count || 0,
+  }));
+
   return {
-    data: (data as KursusWithInstructor[]) || [],
+    data: coursesWithEnrollment as KursusWithInstructor[],
     count: count || 0,
     page,
     limit,
