@@ -38,7 +38,6 @@ import {
   AlertDialogTitle,
 } from "@/komponen/ui/alert-dialog";
 import { Label } from "@/komponen/ui/label";
-import { Badge } from "@/komponen/ui/badge";
 import {
   Card,
   CardContent,
@@ -62,7 +61,7 @@ import type {
   KursusWithInstructor,
 } from "../tipe/courses.types";
 import { useToast } from "@/komponen/ui/use-toast";
-import { cn, getInitials } from "@/pustaka/utils";
+import { cn } from "@/pustaka/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,8 +72,8 @@ import {
 const statusColors = {
   draft: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400",
   published:
-    "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50",
-  archived: "bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800/50",
+    "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50 dark:hover:bg-emerald-900/20",
+  archived: "bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800/50 dark:hover:bg-rose-900/20",
 };
 
 const statusLabels = {
@@ -417,18 +416,11 @@ export function HalamanKursusAdmin() {
           {coursesData?.data.map((course) => (
             <Card key={course.id} className="group hover:shadow-md transition-all duration-300 border-muted-foreground/10 overflow-hidden flex flex-col">
               <CardHeader className="pb-3 flex-1">
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <Badge className={cn("font-semibold text-[10px] px-2 py-0 uppercase tracking-wider", statusColors[course.status])}>
-                    {statusLabels[course.status]}
-                  </Badge>
-                  {course.kategori && (
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                      {course.kategori}
-                    </span>
-                  )}
+                <div className="mb-3">
+                  {/* Status & Kategori dihapus sesuai permintaan */}
                 </div>
                 <Link to={`/admin/kursus/${course.id}`} className="block">
-                  <h3 className="font-bold text-lg leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
+                  <h3 className="font-bold text-lg leading-tight transition-colors line-clamp-2">
                     {course.judul}
                   </h3>
                 </Link>
@@ -438,17 +430,19 @@ export function HalamanKursusAdmin() {
               </CardHeader>
               <CardContent className="py-0">
                 <div className="pt-4 border-t border-muted/50 space-y-3 pb-4">
-                  <div className="flex items-center gap-2.5 text-sm text-foreground/80">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0">
-                      {getInitials(course.instruktur?.nama_lengkap || "A")}
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-zinc-500 font-medium italic">
                     <span className="truncate">
-                      {course.instruktur?.nama_lengkap || "Belum ada instruktur"}
+                      Instruktur: {course.instruktur?.nama_lengkap || "Belum ada instruktur"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    <span><span className="font-bold text-foreground">{(course as any).enrollment_count || 0}</span> Siswa Terdaftar</span>
+                  <div className="flex items-center justify-between gap-4 text-[11px] text-zinc-500 font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-1.5 ">
+                      <Users className="w-3.5 h-3.5" />
+                      <span>{(course as any).enrollment_count || 0} Pendaftar</span>
+                    </div>
+                    {course.durasi_menit && (
+                      <span>{course.durasi_menit} Menit</span>
+                    )}
                   </div>
                 </div>
               </CardContent>

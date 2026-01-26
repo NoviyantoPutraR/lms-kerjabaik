@@ -318,6 +318,7 @@ export async function createAdminCourse(courseData: CreateCourseData) {
     // @ts-ignore: Supabase type inference issue
     .insert({
       ...courseData,
+      id_instruktur: courseData.id_instruktur || null,
       id_lembaga: tenantId,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -350,11 +351,25 @@ export async function updateAdminCourse(
   if (!currentUser) throw new Error("User not found");
   const tenantId = (currentUser as any).id_lembaga;
 
+  // If instructor is assigned, verify they are in the same tenant
+  if (courseData.id_instruktur) {
+    const { data: instructor } = await supabase
+      .from("pengguna")
+      .select("id_lembaga")
+      .eq("id", courseData.id_instruktur)
+      .single();
+
+    if (!instructor || (instructor as any).id_lembaga !== tenantId) {
+      throw new Error("Instructor not found in your tenant");
+    }
+  }
+
   const { data, error } = await supabase
     .from("kursus")
     // @ts-ignore
     .update({
       ...courseData,
+      id_instruktur: courseData.id_instruktur || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", kursusId)
