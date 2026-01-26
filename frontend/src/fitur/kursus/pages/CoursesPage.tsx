@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, BookOpen } from 'lucide-react';
+import { Search, BookOpen, Filter } from 'lucide-react';
 import { Input } from '@/komponen/ui/input';
 import { Button } from '@/komponen/ui/button';
 import {
@@ -13,22 +13,26 @@ import { Card, CardContent } from '@/komponen/ui/card';
 import { Skeleton } from '@/komponen/ui/skeleton';
 import { Badge } from '@/komponen/ui/badge';
 import { useCatalogCourses, useCourseCategories } from '@/fitur/pembelajar/api/catalogApi';
+import { useEnrollments } from '@/fitur/pembelajar/api/learnerApi';
 import { useLearnerStore } from '@/fitur/pembelajar/stores/learnerStore';
+import { CourseCard } from '@/fitur/pembelajar/komponen/CourseCard';
 import { Link } from 'react-router-dom';
-import type { Course } from '@/fitur/pembelajar/tipe';
+import type { Course, Enrollment } from '@/fitur/pembelajar/tipe';
 
 export function CoursesPage() {
   const { courseFilters, setCourseFilters, resetFilters } = useLearnerStore();
   const [searchInput, setSearchInput] = useState(courseFilters.search || '');
+  const [viewStatus, setViewStatus] = useState<'katalog' | 'aktif' | 'selesai'>('katalog');
 
-  const { data: catalogData, isLoading } = useCatalogCourses({
-    search: courseFilters.search,
-    kategori: courseFilters.kategori || undefined,
+  const { data: catalogData, isLoading: isCatalogLoading } = useCatalogCourses({
+    search: viewStatus === 'katalog' ? courseFilters.search : undefined,
+    kategori: viewStatus === 'katalog' && courseFilters.kategori ? courseFilters.kategori : undefined,
     tingkat: courseFilters.tingkat as any,
     page: 1,
     limit: 12,
   });
 
+  const { data: enrollments, isLoading: isEnrollmentsLoading } = useEnrollments();
   const { data: categories } = useCourseCategories();
 
   const handleSearch = () => {
@@ -44,7 +48,22 @@ export function CoursesPage() {
   const handleResetFilters = () => {
     setSearchInput('');
     resetFilters();
+    setViewStatus('katalog');
   };
+
+  // Filter enrollments berdasarkan status dan pencarian lokal
+  const filteredEnrollments = enrollments?.filter(e => {
+    const isStatusMatch = e.status === viewStatus;
+    const isSearchMatch = searchInput
+      ? e.kursus?.judul.toLowerCase().includes(searchInput.toLowerCase()) ||
+      e.kursus?.deskripsi?.toLowerCase().includes(searchInput.toLowerCase())
+      : true;
+    const isCategoryMatch = courseFilters.kategori && courseFilters.kategori !== 'all'
+      ? e.kursus?.kategori === courseFilters.kategori
+      : true;
+
+    return isStatusMatch && isSearchMatch && isCategoryMatch;
+  }) || [];
 
   const getTingkatColor = (tingkat?: string) => {
     switch (tingkat) {
@@ -59,112 +78,38 @@ export function CoursesPage() {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Katalog Kursus
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Jelajahi dan daftar kursus pembelajaran
-        </p>
-      </div>
+  const renderContent = () => {
+    const isLoading = viewStatus === 'katalog' ? isCatalogLoading : isEnrollmentsLoading;
 
-      {/* Search & Filters */}
-      <Card className="rounded-2xl border-border/60 shadow-none">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            {/* Search */}
-            <div className="md:col-span-6 lg:col-span-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Cari kursus berdasarkan judul atau deskripsi..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="pl-10 h-10 rounded-xl border-zinc-200 dark:border-zinc-800"
-                />
-              </div>
-            </div>
-
-            {/* Kategori Filter */}
-            <div className="md:col-span-4 lg:col-span-3">
-              <Select
-                value={courseFilters.kategori || 'all'}
-                onValueChange={(value) =>
-                  setCourseFilters({ kategori: value === 'all' ? null : value })
-                }
-              >
-                <SelectTrigger className="h-10 rounded-xl border-zinc-200 dark:border-zinc-800">
-                  <SelectValue placeholder="Semua Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Kategori</SelectItem>
-                  {categories?.map((kategori) => (
-                    <SelectItem key={kategori} value={kategori}>
-                      {kategori}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Reset Button */}
-            <div className="md:col-span-2 lg:col-span-1">
-              <Button
-                onClick={handleResetFilters}
-                variant="outline"
-                className="w-full rounded-xl h-10 font-bold shrink-0 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-200"
-                title="Reset Filter"
-              >
-                Reset
-              </Button>
-            </div>
-          </div>
-
-          {/* Active Filters */}
-          {(courseFilters.search || courseFilters.kategori || courseFilters.tingkat) && (
-            <div className="flex items-center gap-2 mt-4">
-              <span className="text-sm text-muted-foreground">Filter aktif:</span>
-              {courseFilters.search && (
-                <Badge variant="secondary">
-                  Search: {courseFilters.search}
-                </Badge>
-              )}
-              {courseFilters.kategori && (
-                <Badge variant="secondary">
-                  Kategori: {courseFilters.kategori}
-                </Badge>
-              )}
-              {courseFilters.tingkat && (
-                <Badge variant="secondary">
-                  Tingkat: {courseFilters.tingkat}
-                </Badge>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Results Count */}
-      {catalogData && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Menampilkan {catalogData.courses.length} dari {catalogData.total} kursus
-          </p>
-        </div>
-      )}
-
-      {/* Course Grid */}
-      {isLoading ? (
+    if (isLoading) {
+      return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} className="h-96" />
           ))}
         </div>
-      ) : catalogData && catalogData.courses.length > 0 ? (
+      );
+    }
+
+    if (viewStatus === 'katalog') {
+      if (!catalogData || catalogData.courses.length === 0) {
+        return (
+          <Card className="rounded-2xl border-dashed">
+            <CardContent className="p-12 text-center">
+              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Tidak ada kursus ditemukan</h3>
+              <p className="text-muted-foreground mb-4">
+                Coba ubah filter atau kata kunci pencarian Anda
+              </p>
+              <Button onClick={handleResetFilters} variant="outline">
+                Reset Filter
+              </Button>
+            </CardContent>
+          </Card>
+        );
+      }
+
+      return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {catalogData.courses.map((course: Course) => (
             <Link key={course.id} to={`/pembelajar/kursus/${course.id}`}>
@@ -235,20 +180,159 @@ export function CoursesPage() {
             </Link>
           ))}
         </div>
-      ) : (
-        <Card>
+      );
+    }
+
+    if (filteredEnrollments.length === 0) {
+      return (
+        <Card className="rounded-2xl border-dashed">
           <CardContent className="p-12 text-center">
-            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Tidak ada kursus ditemukan</h3>
+            <Filter className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Tidak ada kursus dalam daftar ini</h3>
             <p className="text-muted-foreground mb-4">
-              Coba ubah filter atau kata kunci pencarian Anda
+              {viewStatus === 'aktif'
+                ? 'Anda belum memiliki kursus yang sedang dipelajari.'
+                : 'Anda belum menyelesaikan kursus apapun.'}
             </p>
-            <Button onClick={handleResetFilters} variant="outline">
-              Reset Filter
+            <Button onClick={() => setViewStatus('katalog')} variant="outline">
+              Jelajahi Katalog
             </Button>
           </CardContent>
         </Card>
-      )}
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredEnrollments.map((enrollment: Enrollment) => (
+          <CourseCard key={enrollment.id} enrollment={enrollment} />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Katalog Kursus
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Jelajahi dan daftar kursus pembelajaran
+        </p>
+      </div>
+
+      {/* Search & Filters */}
+      <Card className="rounded-2xl border-border/60 shadow-none">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            {/* Search */}
+            <div className="md:col-span-5 lg:col-span-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Cari kursus..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="pl-10 h-10 rounded-xl border-zinc-200 dark:border-zinc-800"
+                />
+              </div>
+            </div>
+
+            {/* Status Filter (New) */}
+            <div className="md:col-span-3 lg:col-span-3">
+              <Select
+                value={viewStatus}
+                onValueChange={(value: any) => setViewStatus(value)}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-zinc-200 dark:border-zinc-800 font-medium">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="katalog">Katalog Kursus</SelectItem>
+                  <SelectItem value="aktif">Sedang Belajar</SelectItem>
+                  <SelectItem value="selesai">Selesai</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Kategori Filter */}
+            <div className="md:col-span-3 lg:col-span-2">
+              <Select
+                value={courseFilters.kategori || 'all'}
+                onValueChange={(value) =>
+                  setCourseFilters({ kategori: value === 'all' ? null : value })
+                }
+              >
+                <SelectTrigger className="h-10 rounded-xl border-zinc-200 dark:border-zinc-800">
+                  <SelectValue placeholder="Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kategori</SelectItem>
+                  {categories?.map((kategori) => (
+                    <SelectItem key={kategori} value={kategori}>
+                      {kategori}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Reset Button */}
+            <div className="md:col-span-1 lg:col-span-1">
+              <Button
+                onClick={handleResetFilters}
+                variant="outline"
+                className="w-full rounded-xl h-10 font-bold shrink-0 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-200 px-0"
+                title="Reset"
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Active Filters */}
+          {(courseFilters.search || courseFilters.kategori || courseFilters.tingkat) && (
+            <div className="flex items-center gap-2 mt-4">
+              <span className="text-sm text-muted-foreground">Filter aktif:</span>
+              {courseFilters.search && (
+                <Badge variant="secondary">
+                  Search: {courseFilters.search}
+                </Badge>
+              )}
+              {courseFilters.kategori && (
+                <Badge variant="secondary">
+                  Kategori: {courseFilters.kategori}
+                </Badge>
+              )}
+              {courseFilters.tingkat && (
+                <Badge variant="secondary">
+                  Tingkat: {courseFilters.tingkat}
+                </Badge>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Results Count */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-bold">
+            {viewStatus === 'katalog' ? 'Daftar Kursus' : viewStatus === 'aktif' ? 'Kursus Saya (Progress)' : 'Riwayat Belajar'}
+          </h2>
+        </div>
+        {viewStatus === 'katalog' && catalogData && (
+          <p className="text-sm text-muted-foreground">
+            {catalogData.courses.length} dari {catalogData.total} kursus
+          </p>
+        )}
+      </div>
+
+      {/* Content Grid */}
+      {renderContent()}
     </div>
   );
 }
