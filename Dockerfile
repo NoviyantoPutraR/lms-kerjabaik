@@ -33,6 +33,14 @@ RUN test -f node_modules/.bin/vite || (echo "ERROR: vite not found in node_modul
 # Copy source code
 COPY frontend/ ./
 
+# Verify environment variables are set before build
+RUN if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_ANON_KEY" ]; then \
+    echo "ERROR: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is not set!" && \
+    echo "VITE_SUPABASE_URL: $VITE_SUPABASE_URL" && \
+    echo "VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:0:20}..." && \
+    exit 1; \
+fi
+
 # Build aplikasi - environment variables tersedia di sini!
 RUN npm run build
 
