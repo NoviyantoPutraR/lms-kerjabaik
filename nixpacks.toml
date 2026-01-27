@@ -12,3 +12,4 @@ cmd = "cd frontend && npm run serve"
 
 [variables]
 NODE_ENV = "production"
+PORT = "3000"
