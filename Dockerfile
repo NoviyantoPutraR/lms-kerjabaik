@@ -13,6 +13,7 @@ ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
 
 # Set as environment variables untuk tersedia saat build
+# JANGAN set NODE_ENV=production di sini karena akan membuat npm ci skip devDependencies
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 
@@ -20,8 +21,11 @@ ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 COPY frontend/package*.json ./
 
 # Install dependencies (including devDependencies needed for Vite build)
-# Jangan set NODE_ENV=production sebelum npm ci agar devDependencies terinstall
-RUN npm ci --include=dev
+# npm ci akan menginstall devDependencies jika NODE_ENV tidak diset ke production
+RUN npm ci
+
+# Verify vite is installed (memastikan devDependencies terinstall)
+RUN npx vite --version || (echo "Vite not found! DevDependencies may not be installed." && exit 1)
 
 # Copy source code
 COPY frontend/ ./
