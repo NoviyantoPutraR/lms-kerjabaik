@@ -26,14 +26,10 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  ThumbsUp,
-  ThumbsDown,
   FileText,
-  Check,
-  Square,
   Calendar,
 } from "lucide-react";
-import { useSubmissions, useGradeSubmission } from "../hooks/useAssessments";
+import { useSubmissions } from "../hooks/useAssessments";
 import { useInstructorCourses } from "../hooks/useInstructorCourses";
 import { useTableSort } from "@/hooks/useTableSort";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -41,8 +37,6 @@ import type { SubmissionFilters, Submission } from "../tipe/instructor.types";
 import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { GradingDialog } from "@/fitur/instruktur/komponen/GradingDialog";
-import { InlineGradeInput } from "@/fitur/instruktur/komponen/InlineGradeInput";
-import { pemberitahuan } from "@/pustaka/pemberitahuan";
 
 export default function AssessmentCenterPage() {
   const [filters, setFilters] = useState<SubmissionFilters>({
@@ -54,15 +48,12 @@ export default function AssessmentCenterPage() {
     string | null
   >(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [editingGradeId, setEditingGradeId] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Debounce search to avoid excessive API calls
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   const { data: submissions, isLoading } = useSubmissions(filters);
   const { data: courses } = useInstructorCourses({ limit: 100 });
-  const gradeSubmissionMutation = useGradeSubmission();
 
   // Helper function to get date range based on filter
   const getDateRange = (filter: string) => {
@@ -155,128 +146,8 @@ export default function AssessmentCenterPage() {
     revision_requested: Clock,
   };
 
-  // Quick aksi handlers
-  const handleQuickGrade = async (submissionId: string, grade: number) => {
-    try {
-      pemberitahuan.tampilkanPemuatan("Menyimpan nilai...");
-      await gradeSubmissionMutation.mutateAsync({
-        submissionId,
-        gradeData: {
-          grade,
-          status: "graded",
-        },
-      });
-      pemberitahuan.sukses(`Nilai ${grade} berhasil disimpan.`);
-      setEditingGradeId(null);
-    } catch (error) {
-      pemberitahuan.gagal("Gagal menyimpan nilai.");
-    } finally {
-      pemberitahuan.hilangkanPemuatan();
-    }
-  };
 
-  const handleQuickApprove = async (submission: Submission) => {
-    try {
-      pemberitahuan.tampilkanPemuatan("Menyetujui submission...");
-      await gradeSubmissionMutation.mutateAsync({
-        submissionId: submission.id,
-        gradeData: {
-          grade: submission.assignment_max_score || 100,
-          status: "graded",
-          feedback: "Approved",
-        },
-      });
-      pemberitahuan.sukses(`Submission dari ${submission.student_name} telah disetujui.`);
-    } catch (error) {
-      pemberitahuan.gagal("Gagal menyetujui submission.");
-    } finally {
-      pemberitahuan.hilangkanPemuatan();
-    }
-  };
 
-  const handleQuickReject = async (submissionId: string) => {
-    pemberitahuan.konfirmasi(
-      "Reject Submission?",
-      "Peserta akan menerima notifikasi bahwa submission mereka ditolak. Anda masih bisa mengubah status ini nanti.",
-      async () => {
-        try {
-          pemberitahuan.tampilkanPemuatan("Menolak submission...");
-          await gradeSubmissionMutation.mutateAsync({
-            submissionId,
-            gradeData: {
-              grade: 0,
-              status: "rejected",
-              feedback: "Rejected",
-            },
-          });
-          pemberitahuan.sukses("Submission telah ditolak.");
-        } catch (error) {
-          pemberitahuan.gagal("Gagal menolak submission.");
-        } finally {
-          pemberitahuan.hilangkanPemuatan();
-        }
-      },
-      undefined,
-      "Ya, Reject"
-    );
-  };
-
-  // Bulk selection handlers
-  const toggleSelectAll = () => {
-    if (selectedIds.size === sortedData.length && sortedData.length > 0) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(sortedData.map((s) => s.id)));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    const newSelected = new Set(selectedIds);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
-    } else {
-      newSelected.add(id);
-    }
-    setSelectedIds(newSelected);
-  };
-
-  const handleBulkAction = async (aksi: "approve" | "reject") => {
-    if (selectedIds.size === 0) return;
-
-    const ids = Array.from(selectedIds);
-    const label = aksi === "approve" ? "menyetujui" : "menolak";
-
-    pemberitahuan.konfirmasi(
-      `${aksi === "approve" ? "Approve" : "Reject"} ${ids.length} Submissions?`,
-      `Anda akan ${label} **${ids.length}** submission secara massal. Aksi ini tidak dapat dibatalkan.`,
-      async () => {
-        try {
-          pemberitahuan.tampilkanPemuatan(`Sedang ${label} ${ids.length} data...`);
-          const status = aksi === "approve" ? "graded" : "rejected";
-          const grade = aksi === "approve" ? 100 : 0;
-          const feedback = aksi === "approve" ? "Bulk Approved" : "Bulk Rejected";
-
-          await Promise.all(
-            ids.map((id) =>
-              gradeSubmissionMutation.mutateAsync({
-                submissionId: id,
-                gradeData: { grade, status, feedback },
-              }),
-            ),
-          );
-          pemberitahuan.sukses(`Berhasil ${label} ${ids.length} submission.`);
-          setSelectedIds(new Set());
-        } catch (error) {
-          pemberitahuan.gagal("Gagal melakukan aksi massal.");
-        } finally {
-          pemberitahuan.hilangkanPemuatan();
-        }
-      }
-    );
-  };
-
-  const handleBulkApprove = () => handleBulkAction("approve");
-  const handleBulkReject = () => handleBulkAction("reject");
 
   return (
     <div className="space-y-6">
@@ -398,31 +269,7 @@ export default function AssessmentCenterPage() {
           <div className="flex items-center justify-between">
             <CardTitle>Submissions</CardTitle>
             <div className="flex items-center gap-4">
-              {selectedIds.size > 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {selectedIds.size} selected
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                    onClick={handleBulkApprove}
-                  >
-                    <ThumbsUp className="mr-2 h-4 w-4" />
-                    Approve All
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={handleBulkReject}
-                  >
-                    <ThumbsDown className="mr-2 h-4 w-4" />
-                    Reject All
-                  </Button>
-                </div>
-              )}
+
               {submissions && submissions.count > 0 && (
                 <p className="text-sm text-muted-foreground">
                   Total: {submissions.count} submissions
@@ -444,19 +291,7 @@ export default function AssessmentCenterPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/30 border-b hover:bg-muted/30">
-                      <TableHead className="w-12 py-3">
-                        <button
-                          onClick={toggleSelectAll}
-                          className="flex items-center justify-center w-full h-full"
-                          aria-label="Select all"
-                        >
-                          {selectedIds.size === sortedData.length && sortedData.length > 0 ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <Square className="h-4 w-4" />
-                          )}
-                        </button>
-                      </TableHead>
+
                       <SortableTableHeader
                         sortKey="student_name"
                         currentSortKey={sortConfig.key as string}
@@ -496,28 +331,15 @@ export default function AssessmentCenterPage() {
                       >
                         Nilai
                       </SortableTableHeader>
-                      <TableHead className="text-right py-3 font-bold text-foreground px-4">Aksi</TableHead>
+                      <TableHead className="py-3 font-bold text-foreground px-4 text-center w-[120px]">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {sortedData.map((submission) => {
                       const StatusIcon = statusIcons[submission.status];
-                      const isEditing = editingGradeId === submission.id;
                       return (
                         <TableRow key={submission.id} className="group hover:bg-muted/10 transition-colors border-b last:border-0">
-                          <TableCell className="py-2.5">
-                            <button
-                              onClick={() => toggleSelect(submission.id)}
-                              className="flex items-center justify-center w-full h-full"
-                              aria-label={`Select submission from ${submission.student_name}`}
-                            >
-                              {selectedIds.has(submission.id) ? (
-                                <Check className="h-4 w-4 text-primary" />
-                              ) : (
-                                <Square className="h-4 w-4 text-muted-foreground" />
-                              )}
-                            </button>
-                          </TableCell>
+
                           <TableCell className="py-2.5">
                             <div>
                               <p className="font-bold text-sm text-foreground">
@@ -580,17 +402,7 @@ export default function AssessmentCenterPage() {
                             </Badge>
                           </TableCell>
                           <TableCell className="py-2.5">
-                            {isEditing ? (
-                              <InlineGradeInput
-                                submissionId={submission.id}
-                                currentGrade={submission.grade}
-                                maxScore={
-                                  submission.assignment_max_score || 100
-                                }
-                                onSave={handleQuickGrade}
-                                onCancel={() => setEditingGradeId(null)}
-                              />
-                            ) : submission.grade !== null ? (
+                            {submission.grade !== null ? (
                               <span className="font-bold text-sm">
                                 {submission.grade}
                               </span>
@@ -598,60 +410,18 @@ export default function AssessmentCenterPage() {
                               <span className="text-muted-foreground text-xs">-</span>
                             )}
                           </TableCell>
-                          <TableCell className="text-right py-2.5 px-4">
-                            <div className="flex items-center justify-end gap-1">
-                              {submission.status === "pending" &&
-                                !isEditing && (
-                                  <>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-full"
-                                      onClick={() =>
-                                        handleQuickApprove(submission)
-                                      }
-                                      title="Quick Approve (Max Score)"
-                                    >
-                                      <ThumbsUp className="h-3.5 w-3.5" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full"
-                                      onClick={() =>
-                                        handleQuickReject(submission.id)
-                                      }
-                                      title="Quick Reject"
-                                    >
-                                      <ThumbsDown className="h-3.5 w-3.5" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-7 px-2 text-xs font-medium"
-                                      onClick={() =>
-                                        setEditingGradeId(submission.id)
-                                      }
-                                      title="Quick Grade"
-                                    >
-                                      Nilai
-                                    </Button>
-                                  </>
-                                )}
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
-                                onClick={() =>
-                                  setSelectedSubmissionId(submission.id)
-                                }
-                              >
-                                <Eye className="mr-1.5 h-3.5 w-3.5" />
-                                {submission.status === "pending"
-                                  ? "Detail"
-                                  : "Detail"}
-                              </Button>
-                            </div>
+                          <TableCell className="py-2.5 px-4 text-center">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-transparent transition-all"
+                              onClick={() =>
+                                setSelectedSubmissionId(submission.id)
+                              }
+                            >
+                              <Eye className="mr-1.5 h-3.5 w-3.5" />
+                              Detail
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );

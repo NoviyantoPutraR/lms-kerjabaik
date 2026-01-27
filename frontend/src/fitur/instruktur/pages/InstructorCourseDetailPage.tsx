@@ -98,11 +98,12 @@ export default function InstructorCourseDetailPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <Link to="/instruktur/courses">
-            <Button variant="ghost" size="sm" className="mb-2">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali
-            </Button>
+          <Link
+            to="/instruktur/courses"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Kembali
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {course.judul}
@@ -340,12 +341,12 @@ export default function InstructorCourseDetailPage() {
                           <TableCell className="text-sm text-muted-foreground">
                             {student.last_activity
                               ? formatDistanceToNow(
-                                  new Date(student.last_activity),
-                                  {
-                                    addSuffix: true,
-                                    locale: idLocale,
-                                  },
-                                )
+                                new Date(student.last_activity),
+                                {
+                                  addSuffix: true,
+                                  locale: idLocale,
+                                },
+                              )
                               : "-"}
                           </TableCell>
                         </TableRow>
@@ -536,6 +537,6 @@ export default function InstructorCourseDetailPage() {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+    </div >
   );
 }

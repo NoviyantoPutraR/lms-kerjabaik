@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/komponen/ui/card";
 import { Button } from "@/komponen/ui/button";
-import { Input } from "@/komponen/ui/input";
 import {
   Select,
   SelectContent,
@@ -26,19 +25,20 @@ import {
 import { Badge } from "@/komponen/ui/badge";
 import { Skeleton } from "@/komponen/ui/skeleton";
 import {
-  Search,
   Filter,
   Eye,
   AlertCircle,
   Mail,
   MessageSquare,
-  MoreVertical,
-  Users,
-  Award,
   AlertTriangle,
   CheckCircle2,
   Calendar,
+  MoreVertical,
+  Users,
+  Search,
+  Award,
 } from "lucide-react";
+import { SearchInput } from "@/komponen/ui/SearchInput";
 import { useInstructorCourses } from "../hooks/useInstructorCourses";
 import {
   useEnrolledStudents,
@@ -132,10 +132,10 @@ export default function StudentProgressPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            Progress Peserta
+            Progres Peserta
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
-            Tracking progress dan engagement peserta
+            Pelacakan progres dan interaksi peserta
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export default function StudentProgressPage() {
       {/* Course Selector */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 md:flex-row">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
             <Select
               value={selectedCourseId}
               onValueChange={(value) => {
@@ -157,7 +157,7 @@ export default function StudentProgressPage() {
                 setFilters({ page: 1, limit: 20 }); // Reset filters
               }}
             >
-              <SelectTrigger className="w-full md:w-[300px]">
+              <SelectTrigger className="w-full md:w-[300px] h-10 border-muted-foreground/20">
                 <SelectValue placeholder="Pilih Kursus" />
               </SelectTrigger>
               <SelectContent>
@@ -171,13 +171,12 @@ export default function StudentProgressPage() {
 
             {selectedCourseId && (
               <>
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
+                <div className="flex-1">
+                  <SearchInput
                     placeholder="Cari peserta..."
                     value={filters.search || ""}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="pl-9"
+                    onClear={() => handleSearchChange("")}
                   />
                 </div>
 
@@ -185,7 +184,7 @@ export default function StudentProgressPage() {
                   value={filters.status || "all"}
                   onValueChange={handleStatusChange}
                 >
-                  <SelectTrigger className="w-full md:w-[200px]">
+                  <SelectTrigger className="w-full md:w-[200px] h-10 border-muted-foreground/20">
                     <Filter className="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
@@ -242,7 +241,7 @@ export default function StudentProgressPage() {
               <p className="text-xs text-muted-foreground">
                 {atRiskCount > 0
                   ? "Butuh perhatian segera"
-                  : "Semua peserta on track"}
+                  : "Semua peserta sesuai target"}
               </p>
             </CardContent>
           </Card>
@@ -292,7 +291,7 @@ export default function StudentProgressPage() {
             <Filter className="h-16 w-16 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-semibold">Pilih Kursus</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Pilih kursus untuk melihat progress peserta
+              Pilih kursus untuk melihat progres peserta
             </p>
           </CardContent>
         </Card>
@@ -328,7 +327,7 @@ export default function StudentProgressPage() {
                     <TableHead>Nilai Rata-rata</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Aktivitas Terakhir</TableHead>
-                    <TableHead className="text-right">Aksi</TableHead>
+                    <TableHead className="text-center w-[100px]">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -365,8 +364,8 @@ export default function StudentProgressPage() {
                               >
                                 <AlertCircle className="mr-1 h-3 w-3" />
                                 {severity === "critical"
-                                  ? "Critical"
-                                  : "Warning"}
+                                  ? "Kritis"
+                                  : "Peringatan"}
                               </Badge>
                             )}
                             <span>{student.student_name}</span>
@@ -422,7 +421,13 @@ export default function StudentProgressPage() {
                                   : "outline"
                             }
                           >
-                            {student.status}
+                            {student.status === "completed"
+                              ? "Selesai"
+                              : student.status === "active"
+                                ? "Aktif"
+                                : student.status === "inactive"
+                                  ? "Tidak Aktif"
+                                  : student.status}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm">
@@ -453,7 +458,7 @@ export default function StudentProgressPage() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-center">
                           {/* Quick Actions Menu - Phase 1 Improvement */}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -472,7 +477,7 @@ export default function StudentProgressPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => {
-                                  window.location.href = `mailto:${student.student_email}?subject=Mengenai Progress Kursus&body=Halo ${student.student_name},%0D%0A%0D%0A`;
+                                  window.location.href = `mailto:${student.student_email}?subject=Mengenai Progres Kursus&body=Halo ${student.student_name},%0D%0A%0D%0A`;
                                 }}
                               >
                                 <Mail className="mr-2 h-4 w-4" />

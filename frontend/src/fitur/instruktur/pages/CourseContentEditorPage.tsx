@@ -263,7 +263,7 @@ export default function CourseContentEditorPage() {
         <div>
           <Link
             to={`/instruktur/kursus/${kursusId}`}
-            className="flex items-center text-sm text-muted-foreground hover:text-primary mb-1"
+            className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-1"
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Detail
           </Link>
@@ -271,12 +271,6 @@ export default function CourseContentEditorPage() {
           <p className="text-muted-foreground">Editor Konten</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => window.open(`/course/${kursusId}`, "_blank")}
-          >
-            Pratinjau Kursus
-          </Button>
           <Button onClick={handleAddModule}>
             <Plus className="mr-2 h-4 w-4" /> Tambah Modul
           </Button>
