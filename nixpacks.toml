@@ -1,5 +1,5 @@
-[providers]
-node = "20"
+[phases.setup]
+nixPkgs = { nodejs = "20" }
 
 [phases.install]
 cmds = ["cd frontend && npm ci"]
