@@ -21,54 +21,27 @@ export default defineConfig({
     strictPort: true,
   },
   build: {
+    // Disable manual chunks untuk menghindari circular dependency issues
+    // Vite akan otomatis melakukan code splitting yang aman
     rollupOptions: {
       output: {
+        // Hanya split vendor yang sangat besar untuk optimasi loading
         manualChunks(id) {
-          // Skip node_modules yang tidak perlu di-split
           if (id.includes("node_modules")) {
-            // React core libraries - harus dalam satu chunk untuk menghindari circular dependencies
-            if (
-              id.includes("react") || 
-              id.includes("react-dom") || 
-              id.includes("react-router-dom") ||
-              id.includes("scheduler")
-            ) {
-              return "react-vendor";
-            }
-            
-            // Recharts (harus terpisah karena dependency yang kompleks)
+            // Recharts adalah library yang sangat besar, split terpisah
             if (id.includes("recharts")) {
               return "recharts-vendor";
             }
-            
-            // UI libraries
-            if (id.includes("lucide-react") || id.includes("@radix-ui")) {
-              return "ui-vendor";
-            }
-            
-            // TanStack Query
-            if (id.includes("@tanstack/react-query")) {
-              return "tanstack-vendor";
-            }
-            
-            // Supabase
-            if (id.includes("@supabase")) {
-              return "supabase-vendor";
-            }
-            
-            // Utils vendor
-            if (id.includes("zod") || id.includes("date-fns") || id.includes("sonner")) {
-              return "utils-vendor";
-            }
-            
-            // Sisa vendor libraries
+            // Semua vendor lainnya dalam satu chunk untuk menghindari dependency issues
             return "vendor";
           }
         }
       }
     },
     chunkSizeWarningLimit: 1000,
-    sourcemap: false, // Disable sourcemap untuk production
-    minify: 'esbuild', // Use esbuild untuk minification yang lebih cepat dan reliable
+    sourcemap: false,
+    minify: 'esbuild',
+    // Target modern browsers untuk build yang lebih kecil dan cepat
+    target: 'esnext',
   },
 });
