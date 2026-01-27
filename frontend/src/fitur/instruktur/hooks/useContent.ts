@@ -14,7 +14,7 @@ export function useContents(moduleId: string) {
     queryKey: ["contents", moduleId],
     queryFn: () => getContents(moduleId),
     enabled: !!moduleId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 

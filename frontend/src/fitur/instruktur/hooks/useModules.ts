@@ -18,7 +18,7 @@ export function useModules(kursusId: string) {
     queryKey: ["modules", kursusId],
     queryFn: () => getModules(kursusId),
     enabled: !!kursusId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -30,7 +30,7 @@ export function useModuleDetail(moduleId: string) {
     queryKey: ["module-detail", moduleId],
     queryFn: () => getModuleDetail(moduleId),
     enabled: !!moduleId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -50,6 +50,9 @@ export function useCreateModule() {
       toast.success("Modul berhasil dibuat");
       queryClient.invalidateQueries({
         queryKey: ["modules", variables.kursusId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["course-content", variables.kursusId],
       });
       queryClient.invalidateQueries({
         queryKey: ["instructor-course-detail", variables.kursusId],
@@ -77,6 +80,9 @@ export function useUpdateModule() {
       toast.success("Modul berhasil diupdate");
       queryClient.invalidateQueries({
         queryKey: ["modules", updatedModule.id_kursus],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["course-content", updatedModule.id_kursus],
       });
       queryClient.invalidateQueries({
         queryKey: ["module-detail", updatedModule.id],
@@ -109,6 +115,9 @@ export function useDeleteModule() {
       toast.success("Modul berhasil dihapus");
       queryClient.invalidateQueries({
         queryKey: ["modules", variables.kursusId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["course-content", variables.kursusId],
       });
       queryClient.invalidateQueries({
         queryKey: ["instructor-course-detail", variables.kursusId],

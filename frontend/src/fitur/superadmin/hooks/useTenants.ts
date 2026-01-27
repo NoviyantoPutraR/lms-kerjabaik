@@ -19,7 +19,6 @@ export function useTenants(filters?: TenantFilters) {
   return useQuery({
     queryKey: ["tenants", filters],
     queryFn: () => getTenants(filters),
-    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -42,7 +41,6 @@ export function useTenantStats(tenantId: string) {
     queryKey: ["tenant-stats", tenantId],
     queryFn: () => getTenantStats(tenantId),
     enabled: !!tenantId,
-    staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
 
@@ -89,6 +87,7 @@ export function useUpdateTenant() {
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
       queryClient.invalidateQueries({ queryKey: ["lembaga", updatedTenant.id] });
+      queryClient.invalidateQueries({ queryKey: ["tenant-stats", updatedTenant.id] });
 
       // Log activity (non-blocking)
       if (user) {

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/pustaka/supabase';
+import { useAuthStore } from '@/fitur/autentikasi/stores/authStore';
 import type {
     Enrollment,
     MaterialProgress,
@@ -44,15 +45,7 @@ export function useEnrollments() {
     return useQuery({
         queryKey: learnerKeys.enrollments(),
         queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             const { data, error } = await supabase
@@ -91,15 +84,7 @@ export function useEnrollCourse() {
 
     return useMutation({
         mutationFn: async (kursusId: string) => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             const { data, error } = await supabase
@@ -133,15 +118,7 @@ export function useCourseProgress(enrollmentId: string) {
     return useQuery({
         queryKey: learnerKeys.courseProgress(enrollmentId),
         queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             const { data, error } = await supabase
@@ -196,15 +173,7 @@ export function useUpdateProgress() {
             waktubelajarDetik: number;
             status: 'belum_mulai' | 'sedang_belajar' | 'selesai';
         }) => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             // 1. Update material progress
@@ -281,15 +250,7 @@ export function useLearnerStats() {
     return useQuery({
         queryKey: learnerKeys.stats(),
         queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             // Count kursus aktif
@@ -371,15 +332,7 @@ export function useAssignments() {
     return useQuery({
         queryKey: learnerKeys.assignments(),
         queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             // Get all tugas with user's submission (if any)
@@ -433,15 +386,7 @@ export function useSubmitAssignment() {
             file: File;
             catatan?: string;
         }) => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             // 1. Upload file to Storage
@@ -520,15 +465,7 @@ export function useAssessmentAttempts(assessmentId: string) {
     return useQuery({
         queryKey: learnerKeys.attempts(assessmentId),
         queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             const { data, error } = await supabase
@@ -553,15 +490,7 @@ export function useStartAssessment() {
 
     return useMutation({
         mutationFn: async (assessmentId: string) => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) throw new Error('Pengguna not found');
 
             // Get nomor percobaan terakhir
@@ -663,15 +592,7 @@ export function useAssignmentSubmissionByAssessment(assessmentId: string) {
     return useQuery({
         queryKey: learnerKeys.assignmentSubmission(assessmentId),
         queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
-
-            const { data: pengguna } = await supabase
-                .from('pengguna')
-                .select('id')
-                .eq('auth_id', user.id)
-                .single<{ id: string }>();
-
+            const { user: pengguna } = useAuthStore.getState();
             if (!pengguna) return null;
 
             // Cari tugas yang terkait dengan asesmen ini

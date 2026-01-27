@@ -1,20 +1,17 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/fitur/autentikasi/stores/authStore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AppSidebarContent } from "./Sidebar";
 import { Sidebar } from "@/komponen/ui/sidebar";
 import { cn } from "@/pustaka/utils";
 
 export function MainLayout() {
-  const { user, logout, initialize, isInitialized } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isInitialized) {
-      initialize();
-    }
-  }, [isInitialized, initialize]);
+  // Initialize handled by App.tsx root level
+
 
   const handleLogout = async () => {
     await logout();

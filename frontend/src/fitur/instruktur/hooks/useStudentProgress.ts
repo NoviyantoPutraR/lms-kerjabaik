@@ -18,7 +18,7 @@ export function useEnrolledStudents(
     queryKey: ["enrolled-students", kursusId, filters],
     queryFn: () => getEnrolledStudents(kursusId, filters),
     enabled: !!kursusId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -30,7 +30,7 @@ export function useStudentProgress(kursusId: string, studentId: string) {
     queryKey: ["student-progress", kursusId, studentId],
     queryFn: () => getStudentProgress(kursusId, studentId),
     enabled: !!kursusId && !!studentId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -42,7 +42,7 @@ export function useStudentEngagement(kursusId: string, studentId: string) {
     queryKey: ["student-engagement", kursusId, studentId],
     queryFn: () => getStudentEngagement(kursusId, studentId),
     enabled: !!kursusId && !!studentId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -54,6 +54,6 @@ export function useCourseAnalytics(kursusId: string) {
     queryKey: ["course-analytics", kursusId],
     queryFn: () => getCourseAnalytics(kursusId),
     enabled: !!kursusId,
-    staleTime: 1000 * 60 * 10, // 10 minutes (analytics can be cached longer)
+    staleTime: 1000 * 60, // 1 minute
   });
 }

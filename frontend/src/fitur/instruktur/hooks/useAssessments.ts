@@ -163,7 +163,7 @@ export function useSubmissions(filters?: SubmissionFilters) {
   return useQuery({
     queryKey: ["instructor-submissions", filters],
     queryFn: () => getSubmissions(filters),
-    staleTime: 1000 * 60 * 2, // 2 minutes (more frequent for grading)
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -175,7 +175,7 @@ export function useSubmissionDetail(submissionId: string) {
     queryKey: ["submission-detail", submissionId],
     queryFn: () => getSubmissionDetail(submissionId),
     enabled: !!submissionId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -210,7 +210,13 @@ export function useGradeSubmission() {
         queryKey: ["instructor-dashboard"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["instructor-dashboard-stats"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["pending-submissions"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["recent-activities"],
       });
     },
     onError: (error: Error) => {
@@ -227,7 +233,7 @@ export function useGradeBook(kursusId: string) {
     queryKey: ["grade-book", kursusId],
     queryFn: () => getGradeBook(kursusId),
     enabled: !!kursusId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 

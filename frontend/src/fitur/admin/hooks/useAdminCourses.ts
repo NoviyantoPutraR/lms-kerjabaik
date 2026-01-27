@@ -25,7 +25,7 @@ export function useAdminCourses(filters?: AdminCourseFilters) {
   return useQuery({
     queryKey: ["admin-courses", currentUser?.id_lembaga, filters],
     queryFn: () => getAdminCourses(filters),
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 10, // 10 seconds
     enabled: !!currentUser?.id_lembaga,
   });
 }
@@ -39,7 +39,7 @@ export function useCourseDetail(kursusId: string) {
   return useQuery({
     queryKey: ["course-detail", kursusId, currentUser?.id_lembaga],
     queryFn: () => getCourseDetail(kursusId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
     enabled: !!kursusId && !!currentUser?.id_lembaga,
   });
 }
@@ -56,6 +56,9 @@ export function useCreateAdminCourse() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["admin-courses", currentUser?.id_lembaga],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-dashboard-stats"],
       });
     },
   });
@@ -99,6 +102,9 @@ export function useDeleteAdminCourse() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["admin-courses", currentUser?.id_lembaga],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-dashboard-stats"],
       });
     },
   });
@@ -163,7 +169,7 @@ export function useInstructors() {
   return useQuery({
     queryKey: ["instructors", currentUser?.id_lembaga],
     queryFn: () => getInstructors(),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
     enabled: !!currentUser?.id_lembaga,
   });
 }

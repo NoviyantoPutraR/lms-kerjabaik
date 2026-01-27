@@ -23,7 +23,6 @@ export function useGlobalUsers(filters?: GlobalUserFilters) {
   return useQuery({
     queryKey: ["global-users", filters],
     queryFn: () => searchGlobalUsers(filters),
-    staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
 
@@ -45,7 +44,6 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: ["admin-users"],
     queryFn: getAdminUsers,
-    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 

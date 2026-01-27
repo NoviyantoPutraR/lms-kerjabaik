@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useGlobalUsers,
   useUpdateUserStatus,
@@ -74,10 +74,19 @@ export function GlobalUsersPage() {
     page: 1,
     limit: 20,
   });
+  const [searchTerm, setSearchTerm] = useState("");
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<PenggunaWithTenant | null>(
     null,
   );
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: searchTerm, page: 1 }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const { data: usersData, isLoading } = useGlobalUsers(filters);
   const { data: tenantsData } = useTenants({ limit: 100 });
@@ -87,7 +96,7 @@ export function GlobalUsersPage() {
   const deleteUserMutation = useDeleteGlobalUser();
 
   const handleSearchChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, search: value, page: 1 }));
+    setSearchTerm(value);
   };
 
   const handleRoleFilter = (value: string) => {
@@ -114,51 +123,66 @@ export function GlobalUsersPage() {
     }));
   };
 
-  const handleToggleStatus = async (userId: string, currentStatus: string) => {
-    try {
-      const newStatus = currentStatus === "aktif" ? "nonaktif" : "aktif";
-      pemberitahuan.tampilkanPemuatan("Mengubah status...");
-      await updateStatusMutation.mutateAsync({
+  const handleToggleStatus = (userId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "aktif" ? "nonaktif" : "aktif";
+    pemberitahuan.tampilkanPemuatan("Mengubah status...");
+    updateStatusMutation.mutate(
+      {
         userId,
         status: newStatus as any,
-      });
-      pemberitahuan.sukses(`Status pengguna berhasil diubah menjadi ${newStatus}.`);
-    } catch (error) {
-      pemberitahuan.gagal("Gagal mengubah status pengguna.");
-    } finally {
-      pemberitahuan.hilangkanPemuatan();
-    }
+      },
+      {
+        onSuccess: () => {
+          pemberitahuan.sukses(`Status pengguna berhasil diubah menjadi ${newStatus}.`);
+        },
+        onError: () => {
+          pemberitahuan.gagal("Gagal mengubah status pengguna.");
+        },
+        onSettled: () => {
+          pemberitahuan.hilangkanPemuatan();
+        },
+      }
+    );
   };
 
-  const handleCreateUser = async (data: CreateUserData) => {
-    try {
-      pemberitahuan.tampilkanPemuatan("Menambahkan pengguna...");
-      await createUserMutation.mutateAsync(data);
-      pemberitahuan.sukses("Pengguna baru berhasil ditambahkan.");
-      setUserDialogOpen(false);
-    } catch (error) {
-      pemberitahuan.gagal("Gagal menambahkan pengguna.");
-    } finally {
-      pemberitahuan.hilangkanPemuatan();
-    }
+  const handleCreateUser = (data: CreateUserData) => {
+    pemberitahuan.tampilkanPemuatan("Menambahkan pengguna...");
+    createUserMutation.mutate(data, {
+      onSuccess: () => {
+        pemberitahuan.sukses("Pengguna baru berhasil ditambahkan.");
+        setUserDialogOpen(false);
+      },
+      onError: () => {
+        pemberitahuan.gagal("Gagal menambahkan pengguna.");
+      },
+      onSettled: () => {
+        pemberitahuan.hilangkanPemuatan();
+      },
+    });
   };
 
-  const handleUpdateUser = async (data: UpdateUserData) => {
+  const handleUpdateUser = (data: UpdateUserData) => {
     if (!editingUser) return;
-    try {
-      pemberitahuan.tampilkanPemuatan("Memperbarui pengguna...");
-      await updateUserMutation.mutateAsync({
+    pemberitahuan.tampilkanPemuatan("Memperbarui pengguna...");
+    updateUserMutation.mutate(
+      {
         userId: editingUser.id,
         data,
-      });
-      pemberitahuan.sukses("Data pengguna berhasil diperbarui.");
-      setUserDialogOpen(false);
-      setEditingUser(null);
-    } catch (error) {
-      pemberitahuan.gagal("Gagal memperbarui data pengguna.");
-    } finally {
-      pemberitahuan.hilangkanPemuatan();
-    }
+      },
+      {
+        onSuccess: () => {
+          pemberitahuan.sukses("Data pengguna berhasil diperbarui.");
+          setUserDialogOpen(false);
+          setEditingUser(null);
+        },
+        onError: () => {
+          pemberitahuan.gagal("Gagal memperbarui data pengguna.");
+        },
+        onSettled: () => {
+          pemberitahuan.hilangkanPemuatan();
+        },
+      }
+    );
   };
 
   const handleSubmitUser = (data: any) => {
@@ -190,16 +214,19 @@ export function GlobalUsersPage() {
     pemberitahuan.konfirmasi(
       "Konfirmasi Hapus",
       `Apakah Anda yakin ingin menghapus pengguna **${user.nama}** secara permanen?`,
-      async () => {
-        try {
-          pemberitahuan.tampilkanPemuatan("Menghapus pengguna...");
-          await deleteUserMutation.mutateAsync(user.id);
-          pemberitahuan.sukses("Pengguna berhasil dihapus.");
-        } catch (error) {
-          pemberitahuan.gagal("Gagal menghapus pengguna.");
-        } finally {
-          pemberitahuan.hilangkanPemuatan();
-        }
+      () => {
+        pemberitahuan.tampilkanPemuatan("Menghapus pengguna...");
+        deleteUserMutation.mutate(user.id, {
+          onSuccess: () => {
+            pemberitahuan.sukses("Pengguna berhasil dihapus.");
+          },
+          onError: () => {
+            pemberitahuan.gagal("Gagal menghapus pengguna.");
+          },
+          onSettled: () => {
+            pemberitahuan.hilangkanPemuatan();
+          },
+        });
       }
     );
   };
@@ -290,8 +317,8 @@ export function GlobalUsersPage() {
             <Input
               placeholder="Cari nama atau email..."
               className="pl-10 bg-background border-muted-foreground/20 focus:border-primary transition-all h-10"
-              value={filters.search || ""}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 

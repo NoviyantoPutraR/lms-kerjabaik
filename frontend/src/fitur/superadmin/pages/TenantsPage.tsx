@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useTenants,
@@ -40,20 +40,23 @@ export function TenantsPage() {
     page: 1,
     limit: 10,
   });
+  const [searchTerm, setSearchTerm] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState<TenantWithStats | null>(
     null,
   );
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: searchTerm, page: 1 }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const { data: tenantsData, isLoading } = useTenants(filters);
   const createMutation = useCreateTenant();
   const updateMutation = useUpdateTenant();
   const deleteMutation = useDeleteTenant();
-
-  const handleCreate = () => {
-    setSelectedTenant(null);
-    setDialogOpen(true);
-  };
 
   const handleEdit = (tenant: TenantWithStats) => {
     setSelectedTenant(tenant);
@@ -64,16 +67,19 @@ export function TenantsPage() {
     pemberitahuan.konfirmasi(
       "Konfirmasi Hapus",
       `Apakah Anda yakin ingin menghapus tenant **${tenant.nama}**? Semua data terkait akan dihapus secara permanen.`,
-      async () => {
-        try {
-          pemberitahuan.tampilkanPemuatan("Menghapus tenant...");
-          await deleteMutation.mutateAsync(tenant.id);
-          pemberitahuan.sukses("Tenant berhasil dihapus.");
-        } catch (error) {
-          pemberitahuan.gagal("Gagal menghapus tenant.");
-        } finally {
-          pemberitahuan.hilangkanPemuatan();
-        }
+      () => {
+        pemberitahuan.tampilkanPemuatan("Menghapus tenant...");
+        deleteMutation.mutate(tenant.id, {
+          onSuccess: () => {
+            pemberitahuan.sukses("Tenant berhasil dihapus.");
+          },
+          onError: () => {
+            pemberitahuan.gagal("Gagal menghapus tenant.");
+          },
+          onSettled: () => {
+            pemberitahuan.hilangkanPemuatan();
+          },
+        });
       }
     );
   };
@@ -82,31 +88,41 @@ export function TenantsPage() {
     navigate(`/superadmin/tenants/${tenant.id}`);
   };
 
-  const handleSubmit = async (data: any) => {
-    try {
-      pemberitahuan.tampilkanPemuatan(selectedTenant ? "Memperbarui tenant..." : "Menambah tenant...");
-      if (selectedTenant) {
-        await updateMutation.mutateAsync({
+  const handleSubmit = (data: any) => {
+    pemberitahuan.tampilkanPemuatan(
+      selectedTenant ? "Memperbarui tenant..." : "Menambah tenant..."
+    );
+
+    const callbacks = {
+      onSuccess: () => {
+        pemberitahuan.sukses(
+          selectedTenant
+            ? "Data tenant berhasil diperbarui."
+            : "Tenant baru berhasil ditambahkan."
+        );
+        setDialogOpen(false);
+        setSelectedTenant(null);
+      },
+      onError: (error: any) => {
+        console.error("Failed to save tenant:", error);
+        pemberitahuan.gagal("Gagal menyimpan data tenant.");
+      },
+      onSettled: () => {
+        pemberitahuan.hilangkanPemuatan();
+      },
+    };
+
+    if (selectedTenant) {
+      updateMutation.mutate(
+        {
           id: selectedTenant.id,
           data,
-        });
-        pemberitahuan.sukses("Data tenant berhasil diperbarui.");
-      } else {
-        await createMutation.mutateAsync(data);
-        pemberitahuan.sukses("Tenant baru berhasil ditambahkan.");
-      }
-      setDialogOpen(false);
-      setSelectedTenant(null);
-    } catch (error) {
-      console.error("Failed to save tenant:", error);
-      pemberitahuan.gagal("Gagal menyimpan data tenant.");
-    } finally {
-      pemberitahuan.hilangkanPemuatan();
+        },
+        callbacks
+      );
+    } else {
+      createMutation.mutate(data, callbacks);
     }
-  };
-
-  const handleSearchChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, search: value, page: 1 }));
   };
 
   const handleStatusFilter = (value: string) => {
@@ -135,7 +151,7 @@ export function TenantsPage() {
             Kelola data organisasi dan lembaga yang terdaftar dalam sistem secara global.
           </p>
         </div>
-        <Button onClick={handleCreate} className="shadow-sm">
+        <Button onClick={() => { setSelectedTenant(null); setDialogOpen(true); }} className="shadow-sm">
           <Plus className="w-4 h-4 mr-2" />
           Tambah Tenant Baru
         </Button>
@@ -210,8 +226,8 @@ export function TenantsPage() {
             <Input
               placeholder="Cari nama atau slug..."
               className="pl-10 bg-background border-muted-foreground/20 focus:border-primary transition-all h-10"
-              value={filters.search || ""}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex flex-wrap gap-2">

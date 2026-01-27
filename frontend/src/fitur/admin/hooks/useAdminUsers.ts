@@ -19,7 +19,7 @@ export function useAdminUsers(filters?: AdminUserFilters) {
   return useQuery({
     queryKey: ["admin-users", currentUser?.id_lembaga, filters],
     queryFn: () => getAdminUsers(filters),
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 10, // 10 seconds
     enabled: !!currentUser?.id_lembaga, // Only run if user has id_lembaga
   });
 }

@@ -13,7 +13,7 @@ export function useInstructorCourses(filters?: CourseFilters) {
   return useQuery({
     queryKey: ["instructor-courses", filters],
     queryFn: () => getInstructorCourses(filters),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -25,7 +25,7 @@ export function useInstructorCourseDetail(kursusId: string) {
     queryKey: ["instructor-course-detail", kursusId],
     queryFn: () => getInstructorCourseDetail(kursusId),
     enabled: !!kursusId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -37,6 +37,6 @@ export function useCourseEnrollments(kursusId: string) {
     queryKey: ["course-enrollments", kursusId],
     queryFn: () => getCourseEnrollments(kursusId),
     enabled: !!kursusId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }

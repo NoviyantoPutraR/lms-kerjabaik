@@ -13,8 +13,8 @@ export function usePlatformOverview() {
   return useQuery({
     queryKey: ["platform-overview"],
     queryFn: getPlatformOverview,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchInterval: 1000 * 60 * 5, // Auto-refetch every 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
+    refetchInterval: 1000 * 60, // Auto-refetch every minute
   });
 }
 
@@ -25,7 +25,7 @@ export function useTenantAnalytics(filters?: AnalyticsFilters) {
   return useQuery({
     queryKey: ["tenant-analytics", filters],
     queryFn: () => getTenantAnalytics(filters),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -36,6 +36,6 @@ export function useGrowthMetrics(period: "day" | "week" | "month" = "month") {
   return useQuery({
     queryKey: ["growth-metrics", period],
     queryFn: () => getGrowthMetrics(period),
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60, // 1 minute
   });
 }

@@ -13,7 +13,7 @@ export function useInstructorDashboardStats() {
   return useQuery({
     queryKey: ["instructor-dashboard-stats"],
     queryFn: () => getInstructorDashboardStats(),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -24,7 +24,7 @@ export function useRecentActivities(limit?: number) {
   return useQuery({
     queryKey: ["recent-activities", limit],
     queryFn: () => getRecentActivities(limit),
-    staleTime: 1000 * 60 * 2, // 2 minutes (more frequent for activity feed)
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -35,7 +35,7 @@ export function useDashboardCourses(limit?: number) {
   return useQuery({
     queryKey: ["dashboard-courses", limit],
     queryFn: () => getDashboardCourses(limit),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 10, // 10 seconds
   });
 }
 
@@ -46,6 +46,6 @@ export function usePendingSubmissions(limit?: number) {
   return useQuery({
     queryKey: ["pending-submissions", limit],
     queryFn: () => getPendingSubmissions(limit),
-    staleTime: 1000 * 60 * 2, // 2 minutes (more frequent for pending items)
+    staleTime: 1000 * 10, // 10 seconds
   });
 }

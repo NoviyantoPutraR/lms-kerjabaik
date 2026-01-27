@@ -37,80 +37,84 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (loading) => set({ isLoading: loading }),
 
       initialize: async () => {
-        // Jika sudah diinisialisasi, jangan lakukan apa-apa
-        if (useAuthStore.getState().isInitialized) return;
+        const state = useAuthStore.getState();
+        // Cegah inisialisasi ganda secara paralel
+        if (state.isInitialized) return;
 
         try {
-          // Hanya set loading jika belum loading
           set({ isLoading: true });
 
-          // Check current session
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
+          // Ambil sesi dengan timeout 5 detik agar tidak hang selamanya
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Supabase timeout")), 5000)
+          );
+
+          const { data: { session } } = (await Promise.race([
+            sessionPromise,
+            timeoutPromise,
+          ])) as any;
 
           if (session?.user) {
-            // Fetch user data from pengguna table
             const { data: pengguna, error } = await supabase
               .from("pengguna")
               .select("*")
               .eq("auth_id", session.user.id)
               .single();
 
-            if (error) throw error;
-
-            set({
-              session: session.user,
-              user: pengguna as AuthUser,
-            });
-          } else {
-            set({
-              session: null,
-              user: null,
-            });
-          }
-
-          // Listen for auth changes
-          supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === "SIGNED_IN" && session?.user) {
-              const { data: pengguna } = await supabase
-                .from("pengguna")
-                .select("*")
-                .eq("auth_id", session.user.id)
-                .single();
-
+            if (!error && pengguna) {
               set({
                 session: session.user,
-                user: pengguna || null,
+                user: pengguna as AuthUser,
               });
-            } else if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
-              if (event === "SIGNED_OUT") {
-                queryClient.clear();
-                set({
-                  session: null,
-                  user: null,
-                });
-              }
             }
-          });
-
-          set({ isInitialized: true, isLoading: false });
-        } catch (error) {
-          // Tangani AbortError (lock competition di Supabase)
-          if (error instanceof Error && error.name === "AbortError") {
-            // Jika ini call pertama yang gagal karena lock, 
-            // setInitialized agar tidak dipanggil lagi dan matikan loading
-            set({ isInitialized: true, isLoading: false });
-            return;
           }
 
-          console.error("Error initializing auth:", error);
-          set({
-            session: null,
-            user: null,
-            isLoading: false,
-            isInitialized: true,
+          // Daftarkan listener transisi auth hanya sekali
+          supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log(`Auth event: ${event}`); // Debug log
+
+            if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+              if (session?.user) {
+                // Strict optimization:
+                // Jika user ID sama dengan yang ada di state, JANGAN fetch ke database.
+                // Cukup update session tokennya saja.
+                const currentUser = useAuthStore.getState().user;
+                if (currentUser && currentUser.auth_id === session.user.id) {
+                  set({
+                    session: session.user,
+                    isLoading: false // Pastikan loading mati
+                  });
+                  return;
+                }
+
+                // Hanya fetch jika user benar-benar baru atau belum ada di state
+                const { data: pengguna } = await supabase
+                  .from("pengguna")
+                  .select("*")
+                  .eq("auth_id", session.user.id)
+                  .single();
+
+                set({
+                  session: session.user,
+                  user: pengguna || null,
+                  isLoading: false,
+                });
+              }
+            } else if (event === "SIGNED_OUT") {
+              queryClient.clear();
+              set({
+                session: null,
+                user: null,
+                isLoading: false,
+              });
+            }
           });
+        } catch (error) {
+          console.error("Auth init error:", error);
+        } finally {
+          // Garansi state initialized dan loading berhenti apapun hasilnya
+          set({ isInitialized: true, isLoading: false });
         }
       },
 
