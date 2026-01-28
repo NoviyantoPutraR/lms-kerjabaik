@@ -1,23 +1,22 @@
 import { Link } from "react-router-dom";
-import {
-  Users,
-  BookOpen,
-  GraduationCap,
-  TrendingUp,
-  UserPlus,
-  Plus,
-  Settings,
-  BarChart3,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Calendar,
-} from "lucide-react";
+import { Settings } from "lucide-react";
 import { cn, getInitials, getAvatarColor } from "@/pustaka/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/komponen/ui/card";
 import { Button } from "@/komponen/ui/button";
 import { Badge } from "@/komponen/ui/badge";
 import { useDashboardStats } from "../hooks/useDashboard";
+import { StatCard } from "@/fitur/superadmin/komponen/dashboard/StatCard";
+import {
+  Teacher,
+  Profile2User,
+  Book,
+  TrendUp,
+  ProfileAdd,
+  Add,
+  Chart,
+  ArrowRight,
+  Clock
+} from "iconsax-react";
 
 export function HalamanDasborAdmin() {
   const { data: stats, isLoading, error } = useDashboardStats();
@@ -58,10 +57,12 @@ export function HalamanDasborAdmin() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-card rounded-2xl border border-dashed border-red-200">
-        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <h3 className="text-xl font-bold text-red-900 dark:text-red-100">Gagal memuat dashboard</h3>
-        <p className="text-red-600/70 dark:text-red-400/70 mt-2">{error.message}</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="mt-6">
+        <div className="p-4 rounded-full bg-red-50 text-red-500 mb-4">
+          <Settings size={24} />
+        </div>
+        <h3 className="text-xl font-bold text-red-900">Gagal memuat dashboard</h3>
+        <p className="text-red-600/70 mt-2">{error.message}</p>
+        <Button onClick={() => window.location.reload()} variant="outline" className="mt-6 rounded-xl">
           Coba Lagi
         </Button>
       </div>
@@ -69,162 +70,135 @@ export function HalamanDasborAdmin() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 font-sans text-gray-900 antialiased selection:bg-violet-100 selection:text-violet-900">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-bold text-gray-800 mb-1">
             Dasbor Admin
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
-            Selamat datang kembali! Berikut ringkasan aktivitas organisasi Anda hari ini.
+          <p className="text-gray-500 text-xs">
+            Overview performa organisasi dan statistik pembelajaran.
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="px-3 py-1 bg-white/50 backdrop-blur-sm shadow-sm border-gray-200">
-            <Calendar className="w-3.5 h-3.5 mr-2 text-primary" />
-            {new Date().toLocaleDateString("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </Badge>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-blue-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Pengguna</CardTitle>
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight">{stats?.totalUsers || 0}</div>
-            <p className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase">
-              Pengguna terdaftar
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-purple-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Kursus</CardTitle>
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-              <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight">{stats?.totalCourses || 0}</div>
-            <p className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase">
-              Aktif & Draft
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-emerald-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Pendaftaran Aktif</CardTitle>
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 transition-colors">
-              <GraduationCap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight" style={{ color: "rgb(16, 185, 129)" }}>{stats?.activeEnrollments || 0}</div>
-            <p className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase">
-              Sedang belajar
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-amber-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Selesai Belajar</CardTitle>
-            <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 transition-colors">
-              <CheckCircle2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight" style={{ color: "rgb(245, 158, 11)" }}>{stats?.completedEnrollments || 0}</div>
-            <p className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase">
-              Selesai kurikulum
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          title="Total Pengguna"
+          value={stats?.totalUsers || 0}
+          subtext="Akun terdaftar"
+          icon={Profile2User}
+          color="bg-blue-500"
+        />
+        <StatCard
+          title="Total Kursus"
+          value={stats?.totalCourses || 0}
+          subtext="Aktif & Draft"
+          icon={Book}
+          color="bg-violet-500"
+        />
+        <StatCard
+          title="Pendaftaran"
+          value={stats?.activeEnrollments || 0}
+          subtext="Sedang belajar"
+          icon={TrendUp}
+          color="bg-emerald-500"
+        />
+        <StatCard
+          title="Selesai"
+          value={stats?.completedEnrollments || 0}
+          subtext="Lulus pembelajaran"
+          icon={Teacher} // Using 'Teacher' as a metaphor for 'Graduated/Mastery' or we could use 'Award'
+          color="bg-amber-500"
+        />
       </div>
 
-      {/* Quick Actions */}
-      <Card className="rounded-2xl border shadow-none bg-muted/20">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div className="space-y-1">
-            <CardTitle className="text-lg font-bold">Aksi Cepat</CardTitle>
-            <p className="text-xs text-muted-foreground font-medium">
-              Tugas administratif utama yang sering diakses
-            </p>
+      {/* Quick Actions Redesign */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link to="/admin/users" className="group relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 hover:shadow-md hover:border-blue-200 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-[100px] -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl w-fit group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+              <ProfileAdd size={24} variant="Bold" />
+            </div>
+            <div className="mt-4">
+              <h3 className="font-bold text-gray-800 text-lg group-hover:text-blue-600 transition-colors">Tambah Pengguna</h3>
+              <p className="text-gray-500 text-xs mt-1">Daftarkan akun siswa atau instruktur baru</p>
+            </div>
+            <div className="mt-4 flex items-center text-blue-600 text-xs font-bold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+              Mulai Sekarang <ArrowRight size={14} className="ml-1" />
+            </div>
           </div>
-          <TrendingUp className="w-5 h-5 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <Button asChild size="sm" className="rounded-xl shadow-sm px-5">
-              <Link to="/admin/users">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Tambah Pengguna
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="secondary" className="rounded-xl shadow-none px-5 bg-white dark:bg-muted border border-muted-foreground/10">
-              <Link to="/admin/courses">
-                <Plus className="w-4 h-4 mr-2" />
-                Tambah Kursus
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline" className="rounded-xl shadow-none px-5 border-muted-foreground/20">
-              <Link to="/admin/reports">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Laporan Analitik
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline" className="rounded-xl shadow-none px-5 border-muted-foreground/20">
-              <Link to="/admin/settings">
-                <Settings className="w-4 h-4 mr-2" />
-                Pengaturan
-              </Link>
-            </Button>
+        </Link>
+
+        <Link to="/admin/courses" className="group relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 hover:shadow-md hover:border-violet-200 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-violet-50 rounded-bl-[100px] -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="p-3 bg-violet-50 text-violet-600 rounded-xl w-fit group-hover:bg-violet-600 group-hover:text-white transition-colors duration-300">
+              <Add size={24} variant="Bold" />
+            </div>
+            <div className="mt-4">
+              <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors">Tambah Kursus</h3>
+              <p className="text-gray-500 text-xs mt-1">Buat modul pembelajaran baru</p>
+            </div>
+            <div className="mt-4 flex items-center text-violet-600 text-xs font-bold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+              Mulai Sekarang <ArrowRight size={14} className="ml-1" />
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </Link>
+
+        <Link to="/admin/reports" className="group relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 hover:shadow-md hover:border-emerald-200 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-[100px] -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl w-fit group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+              <Chart size={24} variant="Bold" />
+            </div>
+            <div className="mt-4">
+              <h3 className="font-bold text-gray-800 text-lg group-hover:text-emerald-600 transition-colors">Laporan</h3>
+              <p className="text-gray-500 text-xs mt-1">Lihat analitik pembelajaran detil</p>
+            </div>
+            <div className="mt-4 flex items-center text-emerald-600 text-xs font-bold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+              Lihat Data <ArrowRight size={14} className="ml-1" />
+            </div>
+          </div>
+        </Link>
+      </div>
 
       {/* Recent Activity Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Users */}
-        <Card className="rounded-2xl shadow-none border-muted/60 overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between bg-muted/10 border-b p-4">
-            <div className="space-y-0.5">
-              <CardTitle className="text-lg font-bold">Pengguna Terbaru</CardTitle>
-              <p className="text-xs text-muted-foreground font-medium">Registrasi pengguna bulan ini</p>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between p-6 border-b border-gray-100">
+            <div>
+              <h3 className="font-bold text-gray-800 text-lg">Pengguna Terbaru</h3>
+              <p className="text-xs text-gray-500 mt-1">Registrasi pengguna bulan ini</p>
             </div>
-            <Button asChild variant="ghost" size="sm" className="font-bold text-primary hover:text-primary/80 hover:bg-transparent">
-              <Link to="/admin/users">Lihat Semua</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="p-6">
+            <Link to="/admin/users" className="text-xs font-bold text-violet-600 hover:text-violet-700 hover:bg-violet-50 px-3 py-2 rounded-lg transition-colors">
+              Lihat Semua
+            </Link>
+          </div>
+          <div className="p-4 flex-1">
             {stats?.recentUsers && stats.recentUsers.length > 0 ? (
-              <div className="space-y-5">
+              <div className="space-y-2">
                 {stats.recentUsers.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-center justify-between group"
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group"
                   >
                     <div className="flex items-center gap-4">
                       <div className={cn(
-                        "w-11 h-11 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm transition-transform group-hover:scale-105",
+                        "w-12 h-12 rounded-2xl flex items-center justify-center text-white text-sm font-bold shadow-sm transition-transform group-hover:scale-105",
                         getAvatarColor(user.nama_lengkap)
                       )}>
                         {getInitials(user.nama_lengkap)}
                       </div>
-                      <div className="space-y-0.5">
-                        <p className="font-bold text-gray-900 dark:text-white leading-tight">
+                      <div className="space-y-1">
+                        <p className="text-sm font-bold text-gray-800 group-hover:text-violet-600 transition-colors">
                           {user.nama_lengkap}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500 font-medium font-mono">
                           {user.email}
                         </p>
                       </div>
@@ -233,15 +207,15 @@ export function HalamanDasborAdmin() {
                       <Badge
                         variant="outline"
                         className={cn(
-                          "capitalize text-[9px] font-bold px-2 py-0.5 rounded-md tracking-wider border-0",
-                          user.role === 'admin' ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" :
-                            user.role === 'instruktur' ? "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" :
-                              "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                          "capitalize text-[10px] font-bold px-2.5 py-1 rounded-lg border-0 shadow-sm",
+                          user.role === 'admin' ? "bg-blue-50 text-blue-700" :
+                            user.role === 'instruktur' ? "bg-purple-50 text-purple-700" :
+                              "bg-gray-100 text-gray-700"
                         )}
                       >
                         {user.role === 'admin' ? "Admin" : user.role === 'instruktur' ? "Instruktur" : "Pembelajar"}
                       </Badge>
-                      <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 opacity-70">
+                      <span className="text-[10px] text-gray-400 flex items-center gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
                         <Clock className="w-3 h-3" />
                         {formatRelativeTime(user.created_at)}
                       </span>
@@ -250,46 +224,51 @@ export function HalamanDasborAdmin() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-muted-foreground/30" />
+              <div className="h-60 flex flex-col items-center justify-center text-center p-6">
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                  <Profile2User size={32} className="text-gray-300" variant="Bulk" />
                 </div>
-                <p className="text-muted-foreground font-bold">Belum ada pengguna terbaru</p>
+                <p className="text-sm font-bold text-gray-900">Belum ada pengguna</p>
+                <p className="text-xs text-gray-400 mt-1 max-w-[200px]">Data akan muncul setelah ada pengguna mendaftar.</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Recent Courses */}
-        <Card className="rounded-2xl shadow-none border-muted/60 overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between bg-muted/10 border-b p-4">
-            <div className="space-y-0.5">
-              <CardTitle className="text-lg font-bold">Kursus Terbaru</CardTitle>
-              <p className="text-xs text-muted-foreground font-medium">Kurikulum pembelajaran terkini</p>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between p-6 border-b border-gray-100">
+            <div>
+              <h3 className="font-bold text-gray-800 text-lg">Kursus Terbaru</h3>
+              <p className="text-xs text-gray-500 mt-1">Kurikulum pembelajaran terkini</p>
             </div>
-            <Button asChild variant="ghost" size="sm" className="font-bold text-primary hover:text-primary/80 hover:bg-transparent">
-              <Link to="/admin/courses">Lihat Semua</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="p-6">
+            <Link to="/admin/courses" className="text-xs font-bold text-violet-600 hover:text-violet-700 hover:bg-violet-50 px-3 py-2 rounded-lg transition-colors">
+              Lihat Semua
+            </Link>
+          </div>
+          <div className="p-4 flex-1">
             {stats?.recentCourses && stats.recentCourses.length > 0 ? (
-              <div className="space-y-5">
+              <div className="space-y-2">
                 {stats.recentCourses.map((course) => (
                   <div
                     key={course.id}
-                    className="flex items-center justify-between group"
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group"
                   >
-                    <div className="flex items-center gap-4 border-l-4 border-primary pl-4 py-1">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-100 text-violet-600 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm">
+                        <Book size={24} variant="Bold" />
+                      </div>
                       <div className="min-w-0 space-y-1">
                         <Link
                           to={`/admin/kursus/${course.id}`}
-                          className="font-bold text-gray-900 dark:text-white hover:text-primary truncate block transition-colors leading-tight"
+                          className="text-sm font-bold text-gray-800 hover:text-violet-600 truncate block transition-colors"
                         >
                           {course.judul}
                         </Link>
-                        <p className="text-xs text-muted-foreground font-medium">
-                          {course.instruktur_nama || "Belum ada instruktur"} •{" "}
-                          <span className="text-foreground font-bold">{course.enrollment_count}</span> <span className="opacity-70">Siswa</span>
+                        <p className="text-[10px] text-gray-500 font-medium flex items-center gap-2">
+                          <span className="flex items-center gap-1"><Teacher size={12} className="text-gray-400" /> {course.instruktur_nama || "Belum ada instruktur"}</span>
+                          <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                          <span className="flex items-center gap-1 text-gray-700 font-bold"><Profile2User size={12} className="text-gray-400" /> {course.enrollment_count} Siswa</span>
                         </p>
                       </div>
                     </div>
@@ -297,71 +276,40 @@ export function HalamanDasborAdmin() {
                       <Badge
                         variant="outline"
                         className={cn(
-                          "capitalize text-[9px] font-bold px-2 py-0.5 rounded-md tracking-wider border-0",
-                          course.status === 'published' ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" :
-                            course.status === 'draft' ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" :
-                              "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                          "capitalize text-[10px] font-bold px-2.5 py-1 rounded-lg border-0 shadow-sm",
+                          course.status === 'published' ? "bg-emerald-50 text-emerald-700" :
+                            course.status === 'draft' ? "bg-amber-50 text-amber-700" :
+                              "bg-gray-100 text-gray-700"
                         )}
                       >
                         {course.status === 'published' ? 'Terbit' : course.status === 'draft' ? 'Draft' : 'Arsip'}
                       </Badge>
-                      <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 opacity-70">
-                        <TrendingUp className="w-3 h-3 text-emerald-500" />
-                        Baru saja dibuat
+                      <span className="text-[10px] text-gray-400 flex items-center gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
+                        <TrendUp size={12} className="text-emerald-500" variant="Bold" />
+                        Baru dibuat
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 flex flex-col items-center">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                  <BookOpen className="w-8 h-8 text-muted-foreground/30" />
+              <div className="h-60 flex flex-col items-center justify-center text-center p-6">
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                  <Book size={32} className="text-gray-300" variant="Bulk" />
                 </div>
-                <p className="text-muted-foreground font-bold">Belum ada kursus</p>
-                <Button asChild className="mt-6 rounded-xl" variant="outline">
+                <p className="text-sm font-bold text-gray-900">Belum ada kursus</p>
+                <Button asChild size="sm" className="mt-4 rounded-xl text-xs h-9 bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-200">
                   <Link to="/admin/courses">Buat Kursus Pertama</Link>
                 </Button>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Enrollment Overview */}
-      {stats?.enrollmentsByStatus && stats.enrollmentsByStatus.length > 0 && (
-        <Card className="rounded-2xl shadow-none border-muted/60 overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between bg-muted/5 border-b p-4">
-            <div className="space-y-0.5">
-              <CardTitle className="text-lg font-bold">Ringkasan Pendaftaran</CardTitle>
-              <p className="text-xs text-muted-foreground font-medium">Distribusi status belajar siswa secara keseluruhan</p>
-            </div>
-            <div className="p-2 bg-muted rounded-lg">
-              <BarChart3 className="w-5 h-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {stats.enrollmentsByStatus.map((item) => (
-                <div
-                  key={item.status}
-                  className="p-4 rounded-xl border border-muted/40 bg-card hover:border-primary/30 transition-colors"
-                >
-                  <p className="text-2xl font-extrabold text-foreground">
-                    {item.count}
-                  </p>
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.05em] mt-1">
-                    {item.status === 'enrolled' ? 'Terdaftar' : item.status === 'active' ? 'Aktif' : item.status === 'completed' ? 'Selesai' : 'Batal'}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
     </div>
   );
 }
-
 
 export default HalamanDasborAdmin;

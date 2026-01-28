@@ -18,12 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/komponen/ui/select";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/komponen/ui/card";
+
 import { StatCard } from "@/fitur/superadmin/komponen/dashboard/StatCard";
 import {
   Building,
@@ -170,7 +165,7 @@ export function TenantsPage() {
           subtext="Tenant terdaftar"
           icon={Building}
           color="bg-blue-500"
-          trend="+2 New"
+          trend="+2 Baru"
         />
         <StatCard
           title="Aktif"
@@ -178,7 +173,7 @@ export function TenantsPage() {
           subtext="Status aktif saat ini"
           icon={TickCircle}
           color="bg-green-500"
-          trend="Stable"
+          trend="Stabil"
         />
         <StatCard
           title="Non-Aktif"
@@ -186,7 +181,7 @@ export function TenantsPage() {
           subtext="Memerlukan perhatian"
           icon={CloseCircle}
           color="bg-red-500"
-          trend="Action Needed"
+          trend="Perlu Tindakan"
         />
         <StatCard
           title="Total Pengguna"

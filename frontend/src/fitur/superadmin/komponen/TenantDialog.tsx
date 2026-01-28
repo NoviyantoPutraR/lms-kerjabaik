@@ -22,7 +22,7 @@ import {
 } from "@/komponen/ui/select";
 import type { TenantWithStats } from "../tipe/tenant.types";
 import { useCheckSlug } from "../hooks/useTenants";
-import { Building, Link, Edit, Add, UserSquare } from "iconsax-react";
+import { Building, Link, Edit, Add } from "iconsax-react";
 
 const tenantSchema = z
   .object({
@@ -162,7 +162,7 @@ export function TenantDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden gap-0 rounded-2xl">
+      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden gap-0 rounded-2xl data-[state=open]:duration-500 data-[state=open]:ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=open]:slide-in-from-bottom-[4%] data-[state=open]:zoom-in-[0.98] transition-all">
         <DialogHeader className="p-6 bg-gray-50/50 border-b border-gray-100 pb-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
