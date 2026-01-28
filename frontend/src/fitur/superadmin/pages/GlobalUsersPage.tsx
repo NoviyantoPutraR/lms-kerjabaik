@@ -33,10 +33,12 @@ import {
   Edit,
   Trash,
   Profile2User,
-  UserTick,
-  UserRemove,
   ShieldSearch,
   Building,
+  TickCircle,
+  CloseCircle,
+  UserTick,
+  UserRemove,
 } from "iconsax-react";
 import { cn } from "@/pustaka/utils";
 import type {
@@ -349,10 +351,10 @@ export function GlobalUsersPage() {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
-                <TableHead className="py-4 px-6 text-[11px] font-bold uppercase tracking-widest text-gray-400">Pengguna</TableHead>
-                <TableHead className="py-4 text-[11px] font-bold uppercase tracking-widest text-gray-400">Akses & Tenant</TableHead>
-                <TableHead className="py-4 text-[11px] font-bold uppercase tracking-widest text-gray-400">Status Akun</TableHead>
-                <TableHead className="py-4 text-[11px] font-bold uppercase tracking-widest text-gray-400 text-center">Tindakan</TableHead>
+                <TableHead className="py-4 px-6 text-left text-xs font-semibold text-gray-500">Pengguna</TableHead>
+                <TableHead className="py-4 text-left text-xs font-semibold text-gray-500">Akses & Tenant</TableHead>
+                <TableHead className="py-4 text-left text-xs font-semibold text-gray-500">Status Akun</TableHead>
+                <TableHead className="py-4 text-center text-xs font-semibold text-gray-500 w-[180px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -395,7 +397,7 @@ export function GlobalUsersPage() {
                             <span className="font-bold text-sm text-gray-800 group-hover:text-[#7B6CF0] transition-colors">
                               {user.nama_lengkap}
                             </span>
-                            <span className="text-[11px] text-gray-400 font-medium">{user.email}</span>
+                            <span className="text-[10px] text-gray-400 font-medium font-mono">{user.email}</span>
                           </div>
                         </div>
                       </TableCell>
@@ -412,20 +414,32 @@ export function GlobalUsersPage() {
                       </TableCell>
                       <TableCell className="py-4">
                         <div className="flex items-center gap-3">
-                          <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider", sInfo.bg, sInfo.text, sInfo.border)}>
-                            <span className={cn("w-1.5 h-1.5 rounded-full", sInfo.color)}></span>
-                            {sInfo.label}
+                          <div className="flex items-center gap-1.5 border rounded-full p-1 pl-1.5 w-fit bg-white border-gray-100">
+                            {user.status === 'aktif' ? (
+                              <TickCircle size={16} variant='Bold' className='text-emerald-500' />
+                            ) : (
+                              <CloseCircle size={16} variant='Bold' className={user.status === 'suspended' ? 'text-red-500' : 'text-gray-400'} />
+                            )}
+                            <span className={cn(
+                              "text-xs font-medium pr-2 capitalize",
+                              user.status === 'aktif' ? "text-emerald-700" :
+                                user.status === 'suspended' ? "text-red-700" : "text-gray-700"
+                            )}>
+                              {user.status === 'suspended' ? 'Ditangguhkan' : user.status === 'nonaktif' ? 'Non-Aktif' : 'Aktif'}
+                            </span>
                           </div>
-                          <Switch
-                            checked={user.status === "aktif"}
-                            onCheckedChange={() => handleToggleStatus(user.id, user.status)}
-                            disabled={user.role === "superadmin" || user.status === "suspended" || updateStatusMutation.isPending}
-                            className="data-[state=checked]:bg-emerald-500 scale-75"
-                          />
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
-                        <div className="flex items-center justify-center gap-1">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center mr-2 relative group-switch" title={user.status === "aktif" ? "Nonaktifkan pengguna" : "Aktifkan pengguna"}>
+                            <Switch
+                              checked={user.status === "aktif"}
+                              onCheckedChange={() => handleToggleStatus(user.id, user.status)}
+                              disabled={user.role === "superadmin" || user.status === "suspended" || updateStatusMutation.isPending}
+                              className="data-[state=checked]:bg-emerald-500 scale-75"
+                            />
+                          </div>
                           <button
                             onClick={() => handleEditUser(user)}
                             disabled={user.role === "superadmin"}

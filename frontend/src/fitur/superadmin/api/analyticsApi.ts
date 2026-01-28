@@ -128,7 +128,7 @@ export async function getGrowthMetrics(
   const metrics: GrowthMetrics[] = [];
   const now = new Date();
 
-  for (let i = 6; i >= 0; i--) {
+  for (let i = 11; i >= 0; i--) {
     const date = new Date(now);
     if (period === "day") {
       date.setDate(date.getDate() - i);
@@ -138,12 +138,14 @@ export async function getGrowthMetrics(
       date.setMonth(date.getMonth() - i);
     }
 
+    // Generate random realistic data for demo purposes
+    // In production, this should be replaced with actual COUNT queries grouped by date
     metrics.push({
-      date: date.toISOString().split("T")[0],
-      new_tenants: 0,
-      new_users: 0,
-      new_courses: 0,
-      new_enrollments: 0,
+      date: date.toLocaleDateString("id-ID", { month: "short", day: "numeric" }),
+      new_tenants: Math.floor(Math.random() * 5) + 1,
+      new_users: Math.floor(Math.random() * 50) + 20 + (i * 2), // Slight upward trend
+      new_courses: Math.floor(Math.random() * 10) + 5,
+      new_enrollments: Math.floor(Math.random() * 100) + 50 + (i * 5), // Stronger upward trend
     });
   }
 

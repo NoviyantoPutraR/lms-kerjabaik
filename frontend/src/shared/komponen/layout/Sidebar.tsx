@@ -90,7 +90,7 @@ export default function Sidebar() {
             initial={isCollapsed ? "collapsed" : "expanded"}
             animate={isCollapsed ? "collapsed" : "expanded"}
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-            className="shrink-0 hidden md:block h-screen sticky top-0 border-r border-border bg-white z-40 relative"
+            className="shrink-0 hidden md:block h-screen sticky top-0 bg-[#f3f4f6] z-40 relative"
         >
             {/* Toggle Button */}
             <div className="absolute -right-3 top-[52px] z-50">
@@ -103,7 +103,7 @@ export default function Sidebar() {
                 </button>
             </div>
 
-            <div className="w-full h-full flex flex-col justify-between overflow-x-hidden overflow-y-auto custom-scrollbar bg-white">
+            <div className="w-full h-full flex flex-col justify-between overflow-x-hidden overflow-y-auto custom-scrollbar bg-[#f3f4f6]">
                 <div>
                     {/* Logo - Compact 60px Width */}
                     <div className="flex items-center h-[60px]"> {/* Reduced height */}
