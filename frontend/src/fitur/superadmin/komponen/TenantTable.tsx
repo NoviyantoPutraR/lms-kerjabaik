@@ -1,22 +1,14 @@
 import type { TenantWithStats } from "../tipe/tenant.types";
-import { Badge } from "@/komponen/ui/badge";
-import { Button } from "@/komponen/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/komponen/ui/table";
 import { formatTanggal, cn } from "@/pustaka/utils";
-import { Edit, Trash2, Eye, MoreVertical, Users, BookOpen, Calendar, Building2 } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/komponen/ui/dropdown-menu";
+  Building,
+  TickCircle,
+  CloseCircle,
+  Calendar,
+  Eye,
+  Edit,
+  Trash,
+} from "iconsax-react";
 
 interface TenantTableProps {
   tenants: TenantWithStats[];
@@ -26,22 +18,6 @@ interface TenantTableProps {
   onViewDetail: (tenant: TenantWithStats) => void;
 }
 
-const statusColors = {
-  aktif:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
-  nonaktif:
-    "bg-slate-100 text-slate-800 dark:bg-slate-900/20 dark:text-slate-400 border-slate-200 dark:border-slate-800",
-  suspended:
-    "bg-rose-100 text-rose-800 dark:bg-rose-900/20 dark:text-rose-400 border-rose-200 dark:border-rose-900",
-};
-
-const tipeColors: Record<string, string> = {
-  provinsi: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-800",
-  bkd: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/10 dark:text-purple-400 dark:border-purple-800",
-  kampus: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/10 dark:text-indigo-400 dark:border-indigo-800",
-  korporasi: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-800",
-};
-
 export function TenantTable({
   tenants,
   isLoading,
@@ -49,42 +25,54 @@ export function TenantTable({
   onDelete,
   onViewDetail,
 }: TenantTableProps) {
+
+  const getTypeColor = (t: string) => {
+    switch (t.toLowerCase()) {
+      case 'provinsi': return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'kampus': return 'bg-orange-50 text-orange-600 border-orange-100';
+      case 'korporasi': return 'bg-violet-50 text-violet-600 border-violet-100';
+      default: return 'bg-gray-50 text-gray-600 border-gray-100';
+    }
+  };
+
   if (isLoading) {
     return (
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead className="w-[300px]">Organisasi</TableHead>
-            <TableHead>Tipe</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Statistik</TableHead>
-            <TableHead>Terdaftar</TableHead>
-            <TableHead className="text-right">Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[...Array(5)].map((_, i) => (
-            <TableRow key={i}>
-              <TableCell>
-                <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
-              </TableCell>
-              <TableCell><div className="h-6 bg-muted animate-pulse rounded w-20" /></TableCell>
-              <TableCell><div className="h-6 bg-muted animate-pulse rounded w-16" /></TableCell>
-              <TableCell><div className="h-6 bg-muted animate-pulse rounded w-24" /></TableCell>
-              <TableCell><div className="h-6 bg-muted animate-pulse rounded w-24" /></TableCell>
-              <TableCell className="text-right"><div className="h-8 w-8 ml-auto bg-muted animate-pulse rounded-full" /></TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50/50 border-b border-gray-100">
+              <tr>
+                <th className="py-4 pl-6 pr-4 w-[350px]"><div className="h-4 bg-gray-200 rounded animate-pulse w-32" /></th>
+                <th className="px-4 py-4 w-[120px]"><div className="h-4 bg-gray-200 rounded animate-pulse w-16" /></th>
+                <th className="px-4 py-4 w-[140px]"><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></th>
+                <th className="px-4 py-4 w-[200px]"><div className="h-4 bg-gray-200 rounded animate-pulse w-24" /></th>
+                <th className="px-6 py-4 w-[120px]"><div className="h-4 bg-gray-200 rounded animate-pulse w-16" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, i) => (
+                <tr key={i} className="border-b border-gray-100 last:border-0">
+                  <td className="py-4 pl-6 pr-4"><div className="flex gap-3"><div className="h-10 w-10 bg-gray-100 rounded-xl animate-pulse" /><div className="space-y-2"><div className="h-4 w-40 bg-gray-100 rounded animate-pulse" /><div className="h-3 w-24 bg-gray-100 rounded animate-pulse" /></div></div></td>
+                  <td className="px-4 py-4"><div className="h-6 w-20 bg-gray-100 rounded animate-pulse" /></td>
+                  <td className="px-4 py-4"><div className="h-6 w-24 bg-gray-100 rounded animate-pulse" /></td>
+                  <td className="px-4 py-4"><div className="flex gap-4"><div className="h-8 w-12 bg-gray-100 rounded animate-pulse" /><div className="h-8 w-12 bg-gray-100 rounded animate-pulse" /></div></td>
+                  <td className="px-6 py-4"><div className="flex gap-2 justify-center"><div className="h-8 w-8 bg-gray-100 rounded animate-pulse" /><div className="h-8 w-8 bg-gray-100 rounded animate-pulse" /></div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     );
   }
 
   if (tenants.length === 0) {
     return (
-      <div className="p-20 text-center bg-card rounded-lg border border-dashed flex flex-col items-center gap-3">
-        <Building2 className="w-12 h-12 text-muted-foreground/30" />
-        <p className="text-muted-foreground font-medium">
+      <div className="p-20 text-center bg-white rounded-2xl border border-dashed border-gray-200 flex flex-col items-center gap-3">
+        <div className="h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center">
+          <Building size={24} className="text-gray-400" />
+        </div>
+        <p className="text-gray-500 font-medium">
           Belum ada tenant yang terdaftar dalam sistem
         </p>
       </div>
@@ -92,100 +80,112 @@ export function TenantTable({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow className="bg-muted/30 hover:bg-muted/30 border-b">
-          <TableHead className="w-[380px] font-semibold text-foreground py-3">Organisasi / Lembaga</TableHead>
-          <TableHead className="font-semibold text-foreground py-3">Tipe</TableHead>
-          <TableHead className="font-semibold text-foreground py-3">Status</TableHead>
-          <TableHead className="font-semibold text-foreground text-center py-3">Pengguna</TableHead>
-          <TableHead className="font-semibold text-foreground text-center py-3">Kursus</TableHead>
-          <TableHead className="font-semibold text-foreground py-3">Tgl Terdaftar</TableHead>
-          <TableHead className="text-right font-semibold text-foreground py-3 pr-6">Aksi</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tenants.map((tenant) => (
-          <TableRow key={tenant.id} className="group transition-all hover:bg-muted/20 border-b last:border-0">
-            <TableCell className="py-2.5">
-              <div className="flex flex-col gap-0.5">
-                <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors cursor-pointer" onClick={() => onViewDetail(tenant)}>
-                  {tenant.nama}
-                </span>
-                <span className="text-xs text-muted-foreground font-medium">/{tenant.slug}</span>
-              </div>
-            </TableCell>
-            <TableCell className="py-4">
-              <Badge
-                variant="outline"
-                className={cn("font-semibold capitalize px-2.5 py-1 text-[11px] tracking-wide", tipeColors[tenant.tipe.toLowerCase()] || "bg-secondary/50")}
-              >
-                {tenant.tipe}
-              </Badge>
-            </TableCell>
-            <TableCell className="py-2.5">
-              <Badge
-                variant="outline"
-                className={cn("font-bold rounded-full px-3 py-1 text-[11px] tracking-wide border shadow-sm", statusColors[tenant.status])}
-              >
-                {tenant.status === 'suspended' ? 'Ditangguhkan' : tenant.status === 'nonaktif' ? 'Non-Aktif' : 'Aktif'}
-              </Badge>
-            </TableCell>
-            <TableCell className="text-center py-2.5">
-              <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center justify-center gap-1.5 font-bold text-blue-600 dark:text-blue-400">
-                  <Users className="w-4 h-4" />
-                  <span>{tenant.user_count || 0}</span>
-                </div>
-
-              </div>
-            </TableCell>
-            <TableCell className="text-center py-2.5">
-              <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center justify-center gap-1.5 font-bold text-purple-600 dark:text-purple-400">
-                  <BookOpen className="w-4 h-4" />
-                  <span>{tenant.course_count || 0}</span>
-                </div>
-
-              </div>
-            </TableCell>
-            <TableCell className="py-2.5">
-              <div className="flex items-center gap-2 text-sm text-foreground/80 font-medium">
-                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                {formatTanggal(tenant.created_at, "short")}
-              </div>
-            </TableCell>
-            <TableCell className="text-right py-2.5 pr-6">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-background shadow-none border border-transparent hover:border-muted-foreground/10 transition-all">
-                    <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[200px] p-2">
-                  <DropdownMenuItem onClick={() => onViewDetail(tenant)} className="cursor-pointer rounded-md py-2.5 px-3 focus:bg-blue-50 dark:focus:bg-blue-900/20 focus:text-blue-700 dark:focus:text-blue-400">
-                    <Eye className="w-4 h-4 mr-3 text-blue-600" />
-                    <span className="font-medium text-sm">Lihat Detail</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onEdit(tenant)} className="cursor-pointer rounded-md py-2.5 px-3 focus:bg-amber-50 dark:focus:bg-amber-900/20 focus:text-amber-700 dark:focus:text-amber-400">
-                    <Edit className="w-4 h-4 mr-3 text-amber-600" />
-                    <span className="font-medium text-sm">Ubah Data</span>
-                  </DropdownMenuItem>
-                  <div className="h-px bg-muted my-2" />
-                  <DropdownMenuItem
-                    onClick={() => onDelete(tenant)}
-                    className="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20 focus:text-red-700 dark:focus:text-red-300 cursor-pointer rounded-md py-2.5 px-3"
-                  >
-                    <Trash2 className="w-4 h-4 mr-3" />
-                    <span className="font-bold text-sm">Hapus Tenant</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-
+    <div className="bg-white border boundary-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-50/50 border-b border-gray-100">
+              <th className="py-4 pl-6 pr-4 text-left text-xs font-semibold text-gray-500 w-[350px]">Organisasi</th>
+              <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 w-[120px]">Tipe</th>
+              <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 w-[140px]">Status</th>
+              <th className="px-2 py-4 text-center text-xs font-semibold text-gray-500 w-[80px]">Pengguna</th>
+              <th className="px-2 py-4 text-center text-xs font-semibold text-gray-500 w-[80px]">Kursus</th>
+              <th className="px-4 py-4 text-left text-xs font-semibold text-gray-500 w-[140px]">Terdaftar</th>
+              <th className="py-4 px-4 text-center text-xs font-semibold text-gray-500 w-[120px]">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tenants.map((tenant) => (
+              <tr key={tenant.id} className="group hover:bg-gray-50/50 transition-colors border-b border-gray-100 last:border-0">
+                <td className="py-4 pl-6 pr-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:shadow-sm transition-all duration-200 border border-gray-100 group-hover:border-violet-100">
+                      <Building size={20} variant="Bold" className="group-hover:text-template-primary transition-colors" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p
+                        className="text-sm font-bold text-gray-800 group-hover:text-template-primary transition-colors cursor-pointer truncate"
+                        onClick={() => onViewDetail(tenant)}
+                      >
+                        {tenant.nama}
+                      </p>
+                      <p className="text-[10px] text-gray-400 font-medium font-mono truncate">
+                        {tenant.slug}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <span className={cn("px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border", getTypeColor(tenant.tipe))}>
+                    {tenant.tipe}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-1.5 border rounded-full p-1 pl-1.5 w-fit bg-white border-gray-100">
+                    {tenant.status === 'aktif' ? (
+                      <TickCircle size={16} variant='Bold' className='text-emerald-500' />
+                    ) : tenant.status === 'suspended' ? (
+                      <CloseCircle size={16} variant='Bold' className='text-red-500' />
+                    ) : (
+                      <CloseCircle size={16} variant='Bold' className='text-gray-400' />
+                    )}
+                    <span className={cn(
+                      "text-xs font-medium pr-2 capitalize",
+                      tenant.status === 'aktif' ? "text-emerald-700" :
+                        tenant.status === 'suspended' ? "text-red-700" : "text-gray-700"
+                    )}>
+                      {tenant.status === 'suspended' ? 'Suspended' : tenant.status === 'nonaktif' ? 'Non-Aktif' : 'Aktif'}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-2 py-4 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold text-gray-700">{tenant.user_count || 0}</span>
+                    <span className="text-[10px] text-gray-400">Users</span>
+                  </div>
+                </td>
+                <td className="px-2 py-4 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold text-gray-700">{tenant.course_count || 0}</span>
+                    <span className="text-[10px] text-gray-400">Kursus</span>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <Calendar size={14} className="text-gray-400" />
+                    {formatTanggal(tenant.created_at, "short")}
+                  </div>
+                </td>
+                <td className="py-4 px-4 text-center">
+                  <div className="flex justify-center gap-1">
+                    <button
+                      onClick={() => onViewDetail(tenant)}
+                      className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Lihat Detail"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      onClick={() => onEdit(tenant)}
+                      className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-orange-50 text-gray-400 hover:text-orange-600 transition-colors"
+                      title="Edit"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => onDelete(tenant)}
+                      className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                      title="Hapus"
+                    >
+                      <Trash size={18} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

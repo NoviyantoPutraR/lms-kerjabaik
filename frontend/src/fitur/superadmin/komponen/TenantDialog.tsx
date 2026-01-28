@@ -22,18 +22,35 @@ import {
 } from "@/komponen/ui/select";
 import type { TenantWithStats } from "../tipe/tenant.types";
 import { useCheckSlug } from "../hooks/useTenants";
+import { Building, Link, Edit, Add, UserSquare } from "iconsax-react";
 
-const tenantSchema = z.object({
-  nama: z.string().min(3, "Nama minimal 3 karakter"),
-  slug: z
-    .string()
-    .min(3, "Slug minimal 3 karakter")
-    .regex(/^[a-z0-9-]+$/, "Slug hanya boleh huruf kecil, angka, dan dash"),
-  tipe: z.string().min(1, "Tipe harus dipilih"),
-  tipe_custom: z.string().optional(),
-  status: z.enum(["aktif", "nonaktif", "suspended"]),
-  url_logo: z.string().url("URL tidak valid").optional().or(z.literal("")),
-});
+const tenantSchema = z
+  .object({
+    nama: z.string().min(3, "Nama minimal 3 karakter"),
+    slug: z
+      .string()
+      .min(3, "Slug minimal 3 karakter")
+      .regex(/^[a-z0-9-]+$/, "Slug hanya boleh huruf kecil, angka, dan dash"),
+    tipe: z.string().min(1, "Tipe harus dipilih"),
+    tipe_custom: z.string().optional(),
+    status: z.enum(["aktif", "nonaktif", "suspended"]),
+    url_logo: z.string().url("URL tidak valid").optional().or(z.literal("")),
+  })
+  .refine(
+    (data) => {
+      if (
+        data.tipe === "custom" &&
+        (!data.tipe_custom || data.tipe_custom.trim() === "")
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Nama tipe custom harus diisi jika memilih Custom",
+      path: ["tipe_custom"],
+    },
+  );
 
 type TenantFormValues = z.infer<typeof tenantSchema>;
 
@@ -145,151 +162,186 @@ export function TenantDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
-            {isEdit ? "Edit Tenant" : "Tambah Tenant Baru"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? "Ubah informasi tenant yang sudah ada"
-              : "Buat tenant baru untuk organisasi"}
-          </DialogDescription>
+      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden gap-0 rounded-2xl">
+        <DialogHeader className="p-6 bg-gray-50/50 border-b border-gray-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
+              {isEdit ? <Edit size={20} variant="Bold" /> : <Add size={20} variant="Bold" />}
+            </div>
+            <div>
+              <DialogTitle className="text-lg font-bold text-gray-800">
+                {isEdit ? "Edit Tenant" : "Tambah Tenant Baru"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-gray-500 mt-0.5">
+                {isEdit
+                  ? "Ubah informasi dan konfigurasi tenant"
+                  : "Daftarkan organisasi baru ke dalam sistem"}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          {/* Nama */}
-          <div className="space-y-2">
-            <Label htmlFor="nama">
-              Nama Organisasi <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="nama"
-              {...register("nama")}
-              onChange={(e) => {
-                register("nama").onChange(e);
-                handleNamaChange(e);
-              }}
-              placeholder="Contoh: Pemerintah Provinsi Jawa Timur"
-            />
-            {errors.nama && (
-              <p className="text-sm text-red-500">{errors.nama.message}</p>
-            )}
-          </div>
-
-          {/* Slug */}
-          <div className="space-y-2">
-            <Label htmlFor="slug">
-              Slug/Subdomain <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="slug"
-              {...register("slug")}
-              placeholder="provinsi-jatim"
-              className="font-mono"
-            />
-            {errors.slug && (
-              <p className="text-sm text-red-500">{errors.slug.message}</p>
-            )}
-            {slug && isSlugAvailable === false && (
-              <p className="text-sm text-red-500">Slug sudah digunakan</p>
-            )}
-            {slug && isSlugAvailable === true && (
-              <p className="text-sm text-green-600">Slug tersedia</p>
-            )}
-          </div>
-
-          {/* Tipe */}
-          <div className="space-y-2">
-            <Label htmlFor="tipe">
-              Tipe Organisasi <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={selectedTipe}
-              onValueChange={(value) => setValue("tipe", value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TIPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.tipe && (
-              <p className="text-sm text-red-500">{errors.tipe.message}</p>
-            )}
-          </div>
-
-          {/* Custom Tipe */}
-          {selectedTipe === "custom" && (
-            <div className="space-y-2">
-              <Label htmlFor="tipe_custom">
-                Nama Tipe Custom <span className="text-red-500">*</span>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-5">
+          {/* Main Info Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Nama */}
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="nama" className="text-xs font-semibold text-gray-700">
+                Nama Organisasi <span className="text-red-500">*</span>
               </Label>
-              <Input
-                id="tipe_custom"
-                {...register("tipe_custom")}
-                placeholder="Contoh: Lembaga Pemerintah"
-              />
-              {errors.tipe_custom && (
-                <p className="text-sm text-red-500">
-                  {errors.tipe_custom.message}
-                </p>
+              <div className="relative group">
+                <Building size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
+                <Input
+                  id="nama"
+                  {...register("nama")}
+                  onChange={(e) => {
+                    register("nama").onChange(e);
+                    handleNamaChange(e);
+                  }}
+                  placeholder="Contoh: Pemerintah Provinsi Jawa Timur"
+                  className="pl-9 h-10 rounded-xl border-gray-200 focus:border-violet-200 focus:ring-violet-100"
+                />
+              </div>
+              {errors.nama && (
+                <p className="text-[10px] text-red-500 font-medium ml-1">{errors.nama.message}</p>
               )}
             </div>
-          )}
 
-          {/* Status */}
-          <div className="space-y-2">
-            <Label htmlFor="status">
-              Status <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={watch("status")}
-              onValueChange={(value: any) => setValue("status", value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="aktif">Aktif</SelectItem>
-                <SelectItem value="nonaktif">Non-Aktif</SelectItem>
-                <SelectItem value="suspended">Suspended</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Slug */}
+            <div className="space-y-2">
+              <Label htmlFor="slug" className="text-xs font-semibold text-gray-700">
+                Slug/Subdomain <span className="text-red-500">*</span>
+              </Label>
+              <div className="relative group">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-mono group-focus-within:text-violet-500">/</span>
+                <Input
+                  id="slug"
+                  {...register("slug")}
+                  placeholder="provinsi-jatim"
+                  className="pl-6 font-mono text-xs h-10 rounded-xl border-gray-200 focus:border-violet-200 focus:ring-violet-100 bg-gray-50/50"
+                />
+              </div>
+              {errors.slug ? (
+                <p className="text-[10px] text-red-500 font-medium ml-1">{errors.slug.message}</p>
+              ) : slug && isSlugAvailable === false ? (
+                <p className="text-[10px] text-red-500 font-medium ml-1">Slug sudah digunakan</p>
+              ) : slug && isSlugAvailable === true ? (
+                <p className="text-[10px] text-green-600 font-medium ml-1 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Slug tersedia</p>
+              ) : null}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="url_logo">Logo URL (Opsional)</Label>
-            <Input
-              id="url_logo"
-              {...register("url_logo")}
-              placeholder="https://example.com/logo.png"
-              type="url"
-            />
-            {errors.url_logo && (
-              <p className="text-sm text-red-500">{errors.url_logo.message}</p>
+            {/* Tipe */}
+            <div className="space-y-2">
+              <Label htmlFor="tipe" className="text-xs font-semibold text-gray-700">
+                Tipe Organisasi <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={selectedTipe}
+                onValueChange={(value) => setValue("tipe", value)}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-gray-200 focus:ring-violet-100 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.tipe && (
+                <p className="text-[10px] text-red-500 font-medium ml-1">{errors.tipe.message}</p>
+              )}
+            </div>
+
+            {/* Custom Tipe */}
+            {selectedTipe === "custom" && (
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="tipe_custom" className="text-xs font-semibold text-gray-700">
+                  Nama Tipe Custom <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="tipe_custom"
+                  {...register("tipe_custom")}
+                  placeholder="Contoh: Lembaga Pemerintah"
+                  className="h-10 rounded-xl border-gray-200 focus:border-violet-200 focus:ring-violet-100"
+                />
+                {errors.tipe_custom && (
+                  <p className="text-[10px] text-red-500 font-medium ml-1">
+                    {errors.tipe_custom.message}
+                  </p>
+                )}
+              </div>
             )}
+
+            {/* Status */}
+            <div className="space-y-2">
+              <Label htmlFor="status" className="text-xs font-semibold text-gray-700">
+                Status <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={watch("status")}
+                onValueChange={(value: any) => setValue("status", value)}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-gray-200 focus:ring-violet-100 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="aktif">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Aktif
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="nonaktif">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-gray-400"></span> Non-Aktif
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="suspended">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-red-500"></span> Suspended
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Logo URL */}
+            <div className="space-y-2">
+              <Label htmlFor="url_logo" className="text-xs font-semibold text-gray-700">URL Logo (Opsional)</Label>
+              <div className="relative group">
+                <Link size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
+                <Input
+                  id="url_logo"
+                  {...register("url_logo")}
+                  placeholder="https://example.com/logo.png"
+                  type="url"
+                  className="pl-9 h-10 rounded-xl border-gray-200 focus:border-violet-200 focus:ring-violet-100"
+                />
+              </div>
+              {errors.url_logo && (
+                <p className="text-[10px] text-red-500 font-medium ml-1">{errors.url_logo.message}</p>
+              )}
+            </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="rounded-xl border-gray-200 hover:bg-gray-50 h-10 px-6"
             >
               Batal
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || !!(slug && isSlugAvailable === false)}
+              className="rounded-xl bg-[#7B6CF0] hover:bg-[#6a5cd6] text-white shadow-lg shadow-violet-200 h-10 px-6"
             >
-              {isSubmitting ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah"}
+              {isSubmitting ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Buat Tenant"}
             </Button>
           </DialogFooter>
         </form>

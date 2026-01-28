@@ -24,14 +24,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/komponen/ui/card";
+import { StatCard } from "@/fitur/superadmin/komponen/dashboard/StatCard";
 import {
-  Plus,
-  Search,
-  Building2,
-  Users,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
+  Building,
+  TickCircle,
+  CloseCircle,
+  Profile2User,
+  Add,
+  SearchNormal1,
+  Setting4,
+} from "iconsax-react";
 import type { TenantWithStats, TenantFilters } from "../tipe/tenant.types";
 
 export function TenantsPage() {
@@ -142,124 +144,111 @@ export function TenantsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans text-gray-900 antialiased selection:bg-violet-100 selection:text-violet-900">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Kelola Tenant</h1>
-          <p className="text-muted-foreground text-xs">
-            Kelola data organisasi dan lembaga yang terdaftar dalam sistem secara global.
+          <h1 className="text-xl font-bold tracking-tight text-gray-800">Manajemen Tenant</h1>
+          <p className="text-gray-500 text-xs">
+            Kelola data organisasi dan lembaga yang terdaftar dalam sistem.
           </p>
         </div>
-        <Button onClick={() => { setSelectedTenant(null); setDialogOpen(true); }} className="shadow-sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Tambah Tenant Baru
-        </Button>
+        <button
+          onClick={() => { setSelectedTenant(null); setDialogOpen(true); }}
+          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#7B6CF0] rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-violet-200"
+        >
+          <Add size={18} />
+          <span>Tambah Tenant</span>
+        </button>
       </div>
 
       {/* Stats Overview */}
-      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-blue-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Tenant</CardTitle>
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-              <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tenantsData?.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Tenant terdaftar</p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-green-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Aktif</CardTitle>
-            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors">
-              <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {tenantsData?.data?.filter((t) => t.status === "aktif").length || 0}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Status aktif saat ini</p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-red-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Non-Aktif/Ditangguhkan</CardTitle>
-            <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
-              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {(tenantsData?.data?.filter((t) => t.status === "nonaktif" || t.status === "suspended").length) || 0}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Memerlukan perhatian</p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-purple-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Pengguna</CardTitle>
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-              <Users className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              {tenantsData?.data?.reduce((acc, curr) => acc + (curr.user_count || 0), 0) || 0}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Pengguna di seluruh tenant</p>
-          </CardContent>
-        </Card>
+      <section className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Tenant"
+          value={tenantsData?.count || 0}
+          subtext="Tenant terdaftar"
+          icon={Building}
+          color="bg-blue-500"
+          trend="+2 New"
+        />
+        <StatCard
+          title="Aktif"
+          value={tenantsData?.data?.filter((t) => t.status === "aktif").length || 0}
+          subtext="Status aktif saat ini"
+          icon={TickCircle}
+          color="bg-green-500"
+          trend="Stable"
+        />
+        <StatCard
+          title="Non-Aktif"
+          value={(tenantsData?.data?.filter((t) => t.status === "nonaktif" || t.status === "suspended").length) || 0}
+          subtext="Memerlukan perhatian"
+          icon={CloseCircle}
+          color="bg-red-500"
+          trend="Action Needed"
+        />
+        <StatCard
+          title="Total Pengguna"
+          value={tenantsData?.data?.reduce((acc, curr) => acc + (curr.user_count || 0), 0) || 0}
+          subtext="Pengguna di seluruh tenant"
+          icon={Profile2User}
+          color="bg-violet-500"
+          trend="+12%"
+        />
       </section>
 
       {/* Filters & Table Section */}
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="relative flex-1 md:max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Cari nama atau slug..."
-              className="pl-10 bg-background border-muted-foreground/20 focus:border-primary transition-all h-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <div className="flex items-center gap-2">
+              <Select
+                value={filters.status || "all"}
+                onValueChange={handleStatusFilter}
+              >
+                <SelectTrigger className="w-[140px] bg-gray-50 border-gray-200 rounded-lg text-xs font-medium h-9 hover:bg-white hover:border-violet-200 transition-all focus:ring-0">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="aktif">Aktif</SelectItem>
+                  <SelectItem value="nonaktif">Non-Aktif</SelectItem>
+                  <SelectItem value="suspended">Ditangguhkan</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.tipe || "all"}
+                onValueChange={handleTipeFilter}
+              >
+                <SelectTrigger className="w-[140px] bg-gray-50 border-gray-200 rounded-lg text-xs font-medium h-9 hover:bg-white hover:border-violet-200 transition-all focus:ring-0">
+                  <SelectValue placeholder="Tipe Org" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Tipe</SelectItem>
+                  <SelectItem value="provinsi">Provinsi</SelectItem>
+                  <SelectItem value="bkd">BKD/BKPSDM</SelectItem>
+                  <SelectItem value="kampus">Kampus</SelectItem>
+                  <SelectItem value="korporasi">Korporasi</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Select
-              value={filters.status || "all"}
-              onValueChange={handleStatusFilter}
-            >
-              <SelectTrigger className="w-[160px] bg-background h-10">
-                <SelectValue placeholder="Semua Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
-                <SelectItem value="aktif">Aktif</SelectItem>
-                <SelectItem value="nonaktif">Non-Aktif</SelectItem>
-                <SelectItem value="suspended">Ditangguhkan</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={filters.tipe || "all"}
-              onValueChange={handleTipeFilter}
-            >
-              <SelectTrigger className="w-[160px] bg-background h-10">
-                <SelectValue placeholder="Semua Tipe" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Tipe</SelectItem>
-                <SelectItem value="provinsi">Provinsi</SelectItem>
-                <SelectItem value="bkd">BKD/BKPSDM</SelectItem>
-                <SelectItem value="kampus">Kampus</SelectItem>
-                <SelectItem value="korporasi">Korporasi</SelectItem>
-              </SelectContent>
-            </Select>
+
+          <div className="flex gap-3 w-full md:w-auto">
+            <div className="relative group flex-1 md:w-64">
+              <Input
+                placeholder="Cari tenant..."
+                className="pl-10 pr-4 py-2 w-full bg-gray-50 border-gray-200 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-violet-100 focus-visible:border-violet-200 focus:bg-white transition-all text-gray-600 placeholder:text-gray-400 focus-visible:outline-none border h-10 shadow-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <SearchNormal1 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
+            </div>
+            <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-500 transition-colors h-10 w-10 flex items-center justify-center">
+              <Setting4 size={18} />
+            </button>
           </div>
         </div>
 
