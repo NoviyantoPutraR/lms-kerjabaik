@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/komponen/ui/table";
-import { Filter, ClipboardList, User, ShieldAlert, ArrowRight } from "lucide-react";
+import { Filter, ClipboardList, User, ShieldAlert, ArrowRight, Calendar } from "lucide-react";
 import { cn } from "@/pustaka/utils";
 import { Badge } from "@/komponen/ui/badge";
 import { StatCard } from "@/fitur/superadmin/komponen/dashboard/StatCard";
@@ -143,7 +143,7 @@ export function AuditLogsPage() {
           subtext="Entri tercatat"
           icon={ClipboardList}
           color="bg-blue-500"
-          trend="Lifetime"
+          trend="Total"
         />
         <StatCard
           title="Aktivitas Hari Ini"
@@ -151,7 +151,7 @@ export function AuditLogsPage() {
           subtext="Data baru hari ini"
           icon={ShieldAlert}
           color="bg-emerald-500"
-          trend="Today"
+          trend="Hari Ini"
         />
         {/* Placeholder for future stats if backend provides specifics */}
       </div>
@@ -160,22 +160,37 @@ export function AuditLogsPage() {
         {/* Filters Bar - Horizontal */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-300 shadow-sm">
           {/* Date Range Group */}
-          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-            <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-200">
-              <span className="text-[10px] font-bold uppercase text-gray-400 pl-2">Rentang:</span>
-              <Input
-                type="date"
-                className="bg-transparent border-0 text-xs h-7 w-[110px] p-0 focus-visible:ring-0 shadow-none text-gray-600"
-                value={filters.date_from || ""}
-                onChange={(e) => setFilters((prev) => ({ ...prev, date_from: e.target.value }))}
-              />
-              <span className="text-gray-300">-</span>
-              <Input
-                type="date"
-                className="bg-transparent border-0 text-xs h-7 w-[110px] p-0 focus-visible:ring-0 shadow-none text-gray-600"
-                value={filters.date_to || ""}
-                onChange={(e) => setFilters((prev) => ({ ...prev, date_to: e.target.value }))}
-              />
+          <div className="flex flex-wrap items-end gap-3 w-full lg:w-auto">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase text-gray-400 ml-1 flex items-center gap-1.5">
+                Dari Tanggal
+              </label>
+              <div className="relative">
+                <Input
+                  type="date"
+                  className="pl-9 bg-gray-50 border-gray-200 text-xs h-9 w-[130px] focus-visible:ring-violet-100 focus:bg-white transition-all rounded-lg cursor-pointer"
+                  value={filters.date_from || ""}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, date_from: e.target.value }))}
+                  onClick={(e) => e.currentTarget.showPicker()}
+                />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase text-gray-400 ml-1">
+                Sampai Tanggal
+              </label>
+              <div className="relative">
+                <Input
+                  type="date"
+                  className="pl-9 bg-gray-50 border-gray-200 text-xs h-9 w-[130px] focus-visible:ring-violet-100 focus:bg-white transition-all rounded-lg cursor-pointer"
+                  value={filters.date_to || ""}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, date_to: e.target.value }))}
+                  onClick={(e) => e.currentTarget.showPicker()}
+                />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+              </div>
             </div>
           </div>
 
