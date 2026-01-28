@@ -131,7 +131,7 @@ export function AuditLogsPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold tracking-tight text-gray-800">Jejak Audit</h1>
         <p className="text-gray-500 text-xs">
-          Tinjau seluruh aktivitas sensitif dan perubahan sistem yang dilakukan oleh Superadmin.
+          Tinjau seluruh aktivitas sensitif dan perubahan sistem yang dilakukan oleh Superadmin dan Admin.
         </p>
       </div>
 
@@ -196,6 +196,24 @@ export function AuditLogsPage() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Select
+              value={filters.role || "all"}
+              onValueChange={(val) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  role: val === "all" ? undefined : val,
+                }))
+              }
+            >
+              <SelectTrigger className="w-[140px] bg-gray-50 border-gray-200 rounded-lg text-xs font-medium h-9 hover:bg-white hover:border-violet-200 transition-all focus:ring-0">
+                <SelectValue placeholder="Semua Role" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-gray-100">
+                <SelectItem value="all">Semua Role</SelectItem>
+                <SelectItem value="superadmin">Superadmin</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
               value={filters.aksi || "all"}
               onValueChange={(val) =>
                 setFilters((prev) => ({
@@ -236,7 +254,6 @@ export function AuditLogsPage() {
                   <TableHead className="py-4 pl-6 pr-4 text-left text-xs font-semibold text-gray-500 w-[200px]">Waktu & Tanggal</TableHead>
                   <TableHead className="py-4 text-left text-xs font-semibold text-gray-500 w-[200px]">Pengguna</TableHead>
                   <TableHead className="py-4 text-left text-xs font-semibold text-gray-500 w-[150px]">Tindakan</TableHead>
-                  <TableHead className="py-4 text-left text-xs font-semibold text-gray-500 w-[150px]">Sumber Daya</TableHead>
                   <TableHead className="py-4 pr-6 text-left text-xs font-semibold text-gray-500">Rincian Perubahan</TableHead>
                 </TableRow>
               </TableHeader>
@@ -244,7 +261,7 @@ export function AuditLogsPage() {
                 {isLoading ? (
                   [...Array(5)].map((_, i) => (
                     <TableRow key={i} className="border-b border-gray-50">
-                      <TableCell colSpan={5} className="py-4 px-6">
+                      <TableCell colSpan={4} className="py-4 px-6">
                         <div className="h-8 bg-gray-50 animate-pulse rounded w-full" />
                       </TableCell>
                     </TableRow>
@@ -292,11 +309,6 @@ export function AuditLogsPage() {
                           {ACTION_LABELS[log.aksi] || log.aksi}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-600 text-xs font-medium border border-gray-200 capitalize">
-                          {RESOURCE_LABELS[log.tipe_sumber_daya] || log.tipe_sumber_daya}
-                        </span>
-                      </TableCell>
                       <TableCell className="py-4 pr-6 min-w-[350px]">
                         <div className="bg-gray-50 p-3 rounded-xl border border-gray-200/60 group-hover:border-gray-300 transition-colors">
                           <AuditLogDetailParser detail={log.detail} />
@@ -307,7 +319,7 @@ export function AuditLogsPage() {
                 )}
                 {data?.data.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-20">
+                    <TableCell colSpan={4} className="text-center py-20">
                       <div className="flex flex-col items-center gap-3">
                         <div className="h-16 w-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300">
                           <ShieldAlert size={32} />

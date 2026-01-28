@@ -6,6 +6,7 @@ import {
   deleteAdminUser,
   bulkImportUsers,
 } from "../api/usersApi";
+import { createAuditLog } from "@/fitur/superadmin/api/auditLogsApi";
 import type { AdminUserFilters, AdminUserData } from "../tipe/admin.types";
 import { useAuthStore } from "@/fitur/autentikasi/stores/authStore";
 
@@ -57,11 +58,25 @@ export function useUpdateAdminUser() {
       userId: string;
       data: Partial<AdminUserData>;
     }) => updateAdminUser(userId, data),
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       // Invalidate dengan id_lembaga untuk cache isolation
       queryClient.invalidateQueries({
         queryKey: ["admin-users", currentUser?.id_lembaga],
       });
+
+      // Log activity
+      if (currentUser) {
+        await createAuditLog({
+          id_pengguna: currentUser.id,
+          aksi: "UPDATE",
+          tipe_sumber_daya: "pengguna",
+          id_sumber_daya: variables.userId,
+          detail: {
+            changes: variables.data,
+            updated_by_admin: true,
+          },
+        });
+      }
     },
   });
 }

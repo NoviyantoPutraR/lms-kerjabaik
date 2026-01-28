@@ -9,15 +9,19 @@ import type {
  * Get audit logs with optional filters
  */
 export async function getAuditLogs(filters?: AuditLogFilters) {
+  // Determine if we need an inner join for role filtering
+  const penggunaJoin = filters?.role ? "pengguna:id_pengguna!inner" : "pengguna:id_pengguna";
+
   let query = supabase
     .from("log_audit")
     .select(
       `
       *,
-      pengguna:id_pengguna (
+      ${penggunaJoin} (
         id,
         nama_lengkap,
-        email
+        email,
+        role
       ),
       tenant:id_lembaga (
         id,
@@ -53,6 +57,10 @@ export async function getAuditLogs(filters?: AuditLogFilters) {
     query = query.lte("created_at", filters.date_to);
   }
 
+  if (filters?.role) {
+    query = query.eq("pengguna.role", filters.role);
+  }
+
   // Pagination
   const page = filters?.page || 1;
   const limit = filters?.limit || 50;
@@ -71,6 +79,7 @@ export async function getAuditLogs(filters?: AuditLogFilters) {
       ...log,
       nama_pengguna: log.pengguna?.nama_lengkap,
       email_pengguna: log.pengguna?.email,
+      role: log.pengguna?.role,
       nama_lembaga: log.tenant?.nama,
     })) || [];
 

@@ -29,6 +29,7 @@ export interface AuditLogFilters {
   tipe_sumber_daya?: string;
   date_from?: string;
   date_to?: string;
+  role?: string;
   page?: number;
   limit?: number;
 }
@@ -36,5 +37,6 @@ export interface AuditLogFilters {
 export interface AuditLogWithUser extends AuditLog {
   nama_pengguna?: string;
   email_pengguna?: string;
+  role?: string;
   nama_lembaga?: string;
 }
