@@ -352,7 +352,7 @@ export function GlobalUsersPage() {
             <TableHeader>
               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
                 <TableHead className="py-4 px-6 text-left text-xs font-semibold text-gray-500">Pengguna</TableHead>
-                <TableHead className="py-4 text-left text-xs font-semibold text-gray-500">Akses & Tenant</TableHead>
+                <TableHead className="py-4 text-left text-xs font-semibold text-gray-500">Role & Tenant</TableHead>
                 <TableHead className="py-4 text-left text-xs font-semibold text-gray-500">Status Akun</TableHead>
                 <TableHead className="py-4 text-center text-xs font-semibold text-gray-500 w-[180px]">Aksi</TableHead>
               </TableRow>
@@ -402,14 +402,19 @@ export function GlobalUsersPage() {
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
-                        <div className="flex flex-col gap-1.5">
-                          <div className={cn("inline-flex items-center w-fit px-2 py-0.5 rounded-lg border text-[10px] font-bold uppercase tracking-wider", rInfo.bg, rInfo.color, rInfo.border)}>
+                        <div className="flex items-center gap-3">
+                          <div className={cn("inline-flex items-center px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider bg-white shadow-sm shrink-0", rInfo.color, rInfo.border)}>
                             {rInfo.label}
                           </div>
-                          <div className="flex items-center gap-1.5 text-gray-500 text-[11px] font-medium">
-                            <Building size={12} />
-                            {user.tenant_name || "Tanpa Tenant"}
-                          </div>
+                          {user.tenant_name && (
+                            <div className="flex items-center gap-1.5 text-gray-500 text-[11px] font-medium border-l pl-3 border-gray-200">
+                              <Building size={14} className="text-gray-400 shrink-0" />
+                              <span className="truncate max-w-[150px]" title={user.tenant_name}>{user.tenant_name}</span>
+                            </div>
+                          )}
+                          {!user.tenant_name && (
+                            <span className="text-[10px] text-gray-300 italic pl-3 border-l border-gray-200">Non-Tenant</span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="py-4">

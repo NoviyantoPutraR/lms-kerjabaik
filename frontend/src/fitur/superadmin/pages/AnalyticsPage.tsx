@@ -19,8 +19,7 @@ import {
   Profile2User,
   Book,
   Chart,
-  Crown1,
-  BookSaved
+  TickCircle
 } from "iconsax-react";
 import { Badge } from "@/komponen/ui/badge";
 import { StatCard } from "@/fitur/superadmin/komponen/dashboard/StatCard";
@@ -161,9 +160,12 @@ export function AnalyticsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-center py-4 px-2">
-                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">
-                      {tenant.active_users_30d} Active
-                    </span>
+                    <div className="flex items-center gap-1.5 border rounded-full p-1 pl-1.5 w-fit bg-white border-gray-100 shadow-sm mx-auto">
+                      <TickCircle size={16} variant='Bold' className='text-emerald-500' />
+                      <span className="text-xs font-bold text-emerald-700 pr-2">
+                        {tenant.active_users_30d} Active
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-center py-4 px-4">
                     <Badge variant="outline" className="font-bold text-[10px] bg-gray-50 border-gray-200 text-gray-600 py-1">
