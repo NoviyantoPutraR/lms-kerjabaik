@@ -1,6 +1,5 @@
 import { usePlatformOverview } from "@/fitur/superadmin/hooks/useAnalytics";
 import { useRecentActivity } from "@/fitur/superadmin/hooks/useAuditLogs";
-import { ActivityLog } from "@/fitur/superadmin/komponen/ActivityLog";
 import {
   Card,
   CardContent,
@@ -8,10 +7,6 @@ import {
   CardTitle,
 } from "@/komponen/ui/card";
 import {
-  Building2,
-  Users,
-  BookOpen,
-  GraduationCap,
   TrendingUp,
   HardDrive,
 } from "lucide-react";
@@ -24,6 +19,9 @@ import {
   Area,
   AreaChart,
 } from "recharts";
+import { StatCard } from "@/fitur/superadmin/komponen/dashboard/StatCard";
+import { ActivityList } from "@/fitur/superadmin/komponen/dashboard/ActivityList";
+import { Book, Profile2User, Teacher, TrendUp, ArrowRight } from 'iconsax-react';
 
 // Dummy data for Tenant Growth Chart
 const tenantGrowthData = [
@@ -53,207 +51,162 @@ const storageUsageData = [
 export function SuperadminDashboard() {
   const { data: overview, isLoading: _overviewLoading } = usePlatformOverview();
   const { data: recentActivity, isLoading: activityLoading } =
-    useRecentActivity(20);
+    useRecentActivity(10); // Limit to 10 for sidebar
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans text-gray-900 antialiased selection:bg-violet-100 selection:text-violet-900">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          Dashboard Superadmin
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
-          Ringkasan platform dan aktivitas terkini
-        </p>
+        <h1 className="text-xl font-bold text-gray-800 mb-1">Dasbor Superadmin</h1>
+        <p className="text-gray-500 text-xs">Overview performa platform dan statistik sistem.</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-blue-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Tenant</CardTitle>
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-              <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview?.total_tenants || 92}</div>
-            <p className="text-xs text-muted-foreground">
-              {overview?.active_tenants || 85} aktif
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-green-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Pengguna</CardTitle>
-            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg group-hover:bg-green-100 dark:group-hover:bg-green-900/40 transition-colors">
-              <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview?.total_users || 2847}</div>
-            <p className="text-xs text-muted-foreground">
-              {overview?.active_users_today || 312} aktif hari ini
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-purple-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Kursus</CardTitle>
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-              <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview?.total_courses || 156}</div>
-            <p className="text-xs text-muted-foreground">
-              Kursus tersedia di platform
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/60 hover:border-orange-500/50 group">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Pendaftaran</CardTitle>
-            <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
-              <GraduationCap className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview?.total_enrollments || 1234}</div>
-            <p className="text-xs text-muted-foreground">
-              Total siswa terdaftar
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          title="Total Tenant"
+          value={overview?.total_tenants || 0}
+          subtext={`${overview?.active_tenants || 0} tenant aktif`}
+          icon={Teacher} // Using Teacher icon as placeholder for Tenant/Building
+          color="bg-blue-500"
+        />
+        <StatCard
+          title="Total Pengguna"
+          value={overview?.total_users || 0}
+          subtext={`${overview?.active_users_today || 0} aktif hari ini`}
+          icon={Profile2User}
+          color="bg-green-500"
+        />
+        <StatCard
+          title="Total Kursus"
+          value={overview?.total_courses || 0}
+          subtext="Kursus tersedia"
+          icon={Book}
+          color="bg-violet-500"
+        />
+        <StatCard
+          title="Pendaftaran"
+          value={overview?.total_enrollments || 0}
+          subtext="Total siswa terdaftar"
+          icon={TrendUp}
+          color="bg-orange-500"
+        />
       </div>
 
-      {/* Tenant Growth Chart */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-xl">Pertumbuhan Tenant</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Tren pertumbuhan tenant per bulan
-            </p>
-          </div>
-          <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={tenantGrowthData}>
-              <defs>
-                <linearGradient id="colorTenants" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
-                </linearGradient>
-                <linearGradient id="colorNewTenants" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" strokeOpacity={0.3} />
-              <XAxis
-                dataKey="month"
-                tick={{ fill: "#6b7280", fontSize: 12 }}
-                stroke="#e5e7eb"
-                strokeWidth={1}
-              />
-              <YAxis
-                tick={{ fill: "#6b7280", fontSize: 12 }}
-                stroke="#e5e7eb"
-                strokeWidth={1}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#1f2937",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "#f9fafb",
-                  padding: "12px",
-                }}
-                itemStyle={{ padding: "4px 0" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="tenants"
-                stroke="#3b82f6"
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorTenants)"
-                name="Total Tenant"
-              />
-              <Area
-                type="monotone"
-                dataKey="newTenants"
-                stroke="#10b981"
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorNewTenants)"
-                name="Tenant Baru"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Content Section - Main (Charts) */}
+        <div className="lg:col-span-2 space-y-6">
 
-      {/* Storage Usage per Tenant */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-xl">Storage per Tenant</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              5 Tenant dengan penggunaan storage tertinggi
-            </p>
-          </div>
-          <HardDrive className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {storageUsageData.map((item, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.name}</span>
-                  <span className={`text-sm font-semibold ${item.usage > 80 ? 'text-red-600' : item.usage > 60 ? 'text-yellow-600' : 'text-green-600'}`}>
-                    {item.usage}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500 relative overflow-hidden"
-                    style={{
-                      width: `${item.usage}%`,
-                      background: `linear-gradient(90deg, ${item.color}88 0%, ${item.color} 100%)`
-                    }}
-                  >
-                    {item.usage > 60 && (
-                      <div className="absolute inset-0 bg-white/20 animate-pulse" />
-                    )}
-                  </div>
-                </div>
+          {/* Tenant Growth Chart */}
+          <Card className="rounded-2xl border-gray-100 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="space-y-1">
+                <CardTitle className="text-base font-bold text-gray-800">Pertumbuhan Tenant</CardTitle>
+                <p className="text-xs text-gray-500">
+                  Tren pertumbuhan tenant per bulan
+                </p>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart data={tenantGrowthData}>
+                  <defs>
+                    <linearGradient id="colorTenants" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: "#9ca3af", fontSize: 10 }}
+                    stroke="transparent"
+                    dy={10}
+                  />
+                  <YAxis
+                    tick={{ fill: "#9ca3af", fontSize: 10 }}
+                    stroke="transparent"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "12px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      fontSize: "12px",
+                      color: "#374151"
+                    }}
+                    itemStyle={{ padding: "0" }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="tenants"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorTenants)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-xl">Aktivitas Terkini</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              20 aktivitas terakhir di platform
-            </p>
+          {/* Storage Usage */}
+          <Card className="rounded-2xl border-gray-100 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="space-y-1">
+                <CardTitle className="text-base font-bold text-gray-800">Penggunaan Storage</CardTitle>
+                <p className="text-xs text-gray-500">
+                  Top 5 tenant dengan penggunaan tertinggi
+                </p>
+              </div>
+              <HardDrive className="w-4 h-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-5">
+                {storageUsageData.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-gray-700">{item.name}</span>
+                      <span className={`font-semibold ${item.usage > 80 ? 'text-red-600' : item.usage > 60 ? 'text-orange-600' : 'text-green-600'}`}>
+                        {item.usage}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500 relative"
+                        style={{
+                          width: `${item.usage}%`,
+                          backgroundColor: item.color
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+        </div>
+
+        {/* Sidebar Section - Right (Activity) */}
+        <div className="space-y-5">
+          <h2 className="text-base font-bold text-gray-800">Aktivitas Terbaru</h2>
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm min-h-[400px]">
+            <ActivityList logs={recentActivity || []} isLoading={activityLoading} />
+
+            <div className="mt-4 pt-4 border-t border-gray-50 flex justify-center">
+              <button
+                onClick={() => window.location.href = '/superadmin/audit-logs'}
+                className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+              >
+                Lihat Semua Aktivitas <ArrowRight size={14} />
+              </button>
+            </div>
           </div>
-          <TrendingUp className="w-5 h-5 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <ActivityLog logs={recentActivity || []} isLoading={activityLoading} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
+
