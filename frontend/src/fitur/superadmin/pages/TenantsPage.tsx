@@ -200,7 +200,7 @@ export function TenantsPage() {
 
       {/* Filters & Table Section */}
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-xl border border-gray-300 shadow-sm">
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <div className="flex items-center gap-2">
               <Select
@@ -252,7 +252,7 @@ export function TenantsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden transition-all">
+        <div className="rounded-xl border border-gray-300 bg-card text-card-foreground shadow-sm overflow-hidden transition-all">
           <TenantTable
             tenants={tenantsData?.data || []}
             isLoading={isLoading}

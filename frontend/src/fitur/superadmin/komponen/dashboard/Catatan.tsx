@@ -3,7 +3,7 @@ import { Card } from '@/komponen/ui/card'
 
 export function Catatan() {
     return (
-        <Card className='border text-gray-500 w-full p-3 rounded-2xl shadow-sm'>
+        <Card className='border border-gray-300 text-gray-500 w-full p-3 rounded-xl shadow-sm'>
             {/* header */}
             <div className='flex items-center justify-between'>
                 <div className='flex items-center text-sm gap-2'>
@@ -16,7 +16,7 @@ export function Catatan() {
                 </button>
             </div>
 
-            <hr className='bg-gray-100 my-4' />
+            <hr className='border-t border-gray-200 my-4' />
 
             {/* content */}
             <div className='space-y-3'>
@@ -39,7 +39,7 @@ export function Catatan() {
                     </div>
                 </div>
 
-                <hr className='bg-gray-100' />
+                <hr className='border-t border-gray-200' />
 
                 {/* note 2 */}
                 <div className='flex items-start gap-3 w-full opacity-70'>
@@ -60,7 +60,7 @@ export function Catatan() {
                     </div>
                 </div>
 
-                <hr className='bg-gray-100' />
+                <hr className='border-t border-gray-200' />
 
                 {/* note 3 */}
                 <div className='flex items-start gap-3 w-full opacity-70'>

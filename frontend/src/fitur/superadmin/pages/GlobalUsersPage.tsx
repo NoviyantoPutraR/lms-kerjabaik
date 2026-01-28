@@ -286,7 +286,7 @@ export function GlobalUsersPage() {
       </section>
 
       {/* Filters Bar - Separate Card to match TenantsPage */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-300 shadow-sm">
         <div className="relative flex-1 max-w-md group">
           <SearchNormal1
             size={18}
@@ -346,7 +346,7 @@ export function GlobalUsersPage() {
       </div>
 
       {/* Table Card */}
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>

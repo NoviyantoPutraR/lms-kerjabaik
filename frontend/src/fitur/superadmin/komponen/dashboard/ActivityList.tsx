@@ -42,7 +42,7 @@ export function ActivityList({ logs, isLoading }: ActivityListProps) {
                     <div key={log.id} className="flex gap-3 group">
                         <div className="flex flex-col items-center shrink-0 mt-[3px]">
                             <div className="w-2 h-2 min-w-[8px] min-h-[8px] rounded-full bg-violet-400 ring-4 ring-violet-50 group-hover:ring-violet-100 transition-all box-content"></div>
-                            {!isLast && <div className="w-px h-full bg-gray-100 my-1"></div>}
+                            {!isLast && <div className="w-px h-full bg-gray-200 my-1"></div>}
                         </div>
                         <div className="pb-6">
                             <p className="text-[10px] text-gray-400 font-medium mb-0.5 flex items-center h-4">

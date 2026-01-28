@@ -180,7 +180,7 @@ export function TenantDetailPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Profile Card */}
         <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden h-full">
+          <div className="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden h-full">
             <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
               <div className="flex items-center gap-2 text-gray-800 font-bold text-sm">
                 <Building size={18} className="text-violet-500" /> Profil Organisasi
@@ -250,7 +250,7 @@ export function TenantDetailPage() {
 
         {/* Configuration Card */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden h-full">
+          <div className="bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden h-full">
             <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
               <div className="flex items-center gap-2 text-gray-800 font-bold text-sm">
                 <Settings size={18} className="text-gray-500" /> Konfigurasi

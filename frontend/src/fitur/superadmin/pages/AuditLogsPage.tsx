@@ -152,7 +152,7 @@ export function AuditLogsPage() {
 
       <div className="space-y-6">
         {/* Filters */}
-        <div className="flex flex-col gap-4 bg-card p-6 rounded-xl border border-border/60 shadow-sm">
+        <div className="flex flex-col gap-4 bg-card p-6 rounded-xl border border-gray-300 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-primary/5 rounded-md">
               <Filter className="w-4 h-4 text-primary" />
@@ -222,7 +222,7 @@ export function AuditLogsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-card text-card-foreground rounded-xl border border-border/60 shadow-sm overflow-hidden transition-all">
+        <div className="bg-card text-card-foreground rounded-xl border border-gray-300 shadow-sm overflow-hidden transition-all">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>

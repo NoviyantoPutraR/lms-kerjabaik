@@ -98,8 +98,8 @@ export function SuperadminDashboard() {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Tenant Growth Chart */}
-          <Card className="rounded-2xl border-gray-100 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Card className="rounded-xl border border-gray-300 shadow-sm overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between py-4 px-6 border-b border-gray-200 bg-white">
               <div className="space-y-1">
                 <CardTitle className="text-base font-bold text-gray-800">Pertumbuhan Tenant</CardTitle>
                 <p className="text-xs text-gray-500">
@@ -152,8 +152,8 @@ export function SuperadminDashboard() {
           </Card>
 
           {/* Storage Usage */}
-          <Card className="rounded-2xl border-gray-100 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Card className="rounded-xl border border-gray-300 shadow-sm overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between py-4 px-6 border-b border-gray-200 bg-white">
               <div className="space-y-1">
                 <CardTitle className="text-base font-bold text-gray-800">Penggunaan Storage</CardTitle>
                 <p className="text-xs text-gray-500">
@@ -192,10 +192,10 @@ export function SuperadminDashboard() {
         {/* Sidebar Section - Right (Activity) */}
         <div className="space-y-5">
           <h2 className="text-base font-bold text-gray-800">Aktivitas Terbaru</h2>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm min-h-[400px]">
+          <div className="bg-white rounded-xl border border-gray-300 p-5 shadow-sm min-h-[400px]">
             <ActivityList logs={recentActivity || []} isLoading={activityLoading} />
 
-            <div className="mt-4 pt-4 border-t border-gray-50 flex justify-center">
+            <div className="mt-4 pt-4 border-t border-gray-200 flex justify-center">
               <button
                 onClick={() => window.location.href = '/superadmin/audit-logs'}
                 className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"

@@ -106,8 +106,8 @@ export function AnalyticsPage() {
       <AnalyticsCharts />
 
       {/* Full Table */}
-      <Card className="shadow-sm border-gray-100 rounded-2xl overflow-hidden bg-white">
-        <CardHeader className="bg-white border-b border-gray-100 py-5 px-6">
+      <Card className="shadow-sm border border-gray-300 rounded-xl overflow-hidden bg-white">
+        <CardHeader className="bg-white border-b py-5 px-6">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg font-bold text-gray-800">Detail Statistik Per Tenant</CardTitle>
@@ -120,34 +120,53 @@ export function AnalyticsPage() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50/50 border-b border-gray-100 hover:bg-gray-50/50">
-                <TableHead className="font-bold text-[11px] uppercase tracking-widest text-gray-400 py-3 px-6">Nama Tenant</TableHead>
-                <TableHead className="font-bold text-[11px] uppercase tracking-widest text-gray-400 py-3 text-center">Pengguna</TableHead>
-                <TableHead className="font-bold text-[11px] uppercase tracking-widest text-gray-400 py-3 text-center">Kursus</TableHead>
-                <TableHead className="font-bold text-[11px] uppercase tracking-widest text-gray-400 py-3 text-center">Pendaftaran</TableHead>
-                <TableHead className="font-bold text-[11px] uppercase tracking-widest text-gray-400 py-3 text-center">Aktif (30hr)</TableHead>
-                <TableHead className="font-bold text-[11px] uppercase tracking-widest text-gray-400 py-3 text-center">Efektivitas</TableHead>
+              <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-b border-gray-100">
+                <TableHead className="py-4 pl-6 pr-4 text-left text-xs font-semibold text-gray-500">Nama Tenant</TableHead>
+                <TableHead className="px-2 py-4 text-center text-xs font-semibold text-gray-500">Pengguna</TableHead>
+                <TableHead className="px-2 py-4 text-center text-xs font-semibold text-gray-500">Kursus</TableHead>
+                <TableHead className="px-2 py-4 text-center text-xs font-semibold text-gray-500">Pendaftaran</TableHead>
+                <TableHead className="px-2 py-4 text-center text-xs font-semibold text-gray-500">Aktif (30hr)</TableHead>
+                <TableHead className="px-4 py-4 text-center text-xs font-semibold text-gray-500">Efektivitas</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {analytics?.map((tenant) => (
-                <TableRow key={tenant.id_lembaga} className="group hover:bg-gray-50/80 transition-colors border-b border-gray-50 last:border-0 cursor-pointer">
-                  <TableCell className="py-3 px-6">
+                <TableRow key={tenant.id_lembaga} className="group hover:bg-gray-50/50 transition-colors border-b border-gray-100 last:border-0 cursor-pointer">
+                  <TableCell className="py-4 pl-6 pr-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500">
-                        <Building size={16} variant="Bold" />
+                      <div className="w-10 h-10 shrink-0 rounded-xl bg-gray-100 border border-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:shadow-sm transition-all duration-200 group-hover:border-violet-100">
+                        <Building size={20} variant="Bold" className="group-hover:text-primary transition-colors" />
                       </div>
-                      <span className="font-bold text-xs text-gray-700 group-hover:text-violet-600 transition-colors">
+                      <span className="font-bold text-sm text-gray-800 group-hover:text-primary transition-colors">
                         {tenant.tenant_name}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-center py-3 font-semibold text-xs text-gray-600">{tenant.user_count}</TableCell>
-                  <TableCell className="text-center py-3 font-semibold text-xs text-gray-600">{tenant.course_count}</TableCell>
-                  <TableCell className="text-center py-3 font-semibold text-xs text-gray-600">{tenant.enrollment_count}</TableCell>
-                  <TableCell className="text-center py-3 font-semibold text-xs text-emerald-600">{tenant.active_users_30d}</TableCell>
-                  <TableCell className="text-center py-3">
-                    <Badge variant="outline" className="font-bold text-[10px] bg-gray-50 border-gray-200 text-gray-600">
+                  <TableCell className="text-center py-4 px-2">
+                    <div className="flex flex-col items-center justify-center">
+                      <span className="text-xs font-bold text-gray-700">{tenant.user_count}</span>
+                      <span className="text-[10px] text-gray-400">Users</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center py-4 px-2">
+                    <div className="flex flex-col items-center justify-center">
+                      <span className="text-xs font-bold text-gray-700">{tenant.course_count}</span>
+                      <span className="text-[10px] text-gray-400">Kursus</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center py-4 px-2">
+                    <div className="flex flex-col items-center justify-center">
+                      <span className="text-xs font-bold text-gray-700">{tenant.enrollment_count}</span>
+                      <span className="text-[10px] text-gray-400">Daftar</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center py-4 px-2">
+                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">
+                      {tenant.active_users_30d} Active
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center py-4 px-4">
+                    <Badge variant="outline" className="font-bold text-[10px] bg-gray-50 border-gray-200 text-gray-600 py-1">
                       {tenant.course_count > 0 ? (tenant.enrollment_count / tenant.course_count).toFixed(1) : "0"} Daftar/Modul
                     </Badge>
                   </TableCell>

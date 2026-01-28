@@ -42,7 +42,7 @@ export function AnalyticsCharts() {
         return (
             <div className="grid gap-6 md:grid-cols-2">
                 {[1, 2].map((i) => (
-                    <Card key={i} className="border-gray-100 rounded-2xl shadow-sm h-[400px] flex items-center justify-center">
+                    <Card key={i} className="border border-gray-300 rounded-xl shadow-sm h-[400px] flex items-center justify-center">
                         <div className="w-10 h-10 border-4 border-violet-100 border-t-violet-500 rounded-full animate-spin" />
                     </Card>
                 ))}
@@ -53,8 +53,8 @@ export function AnalyticsCharts() {
     return (
         <div className="grid gap-6 lg:grid-cols-2">
             {/* Growth Trend Chart */}
-            <Card className="border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-white border-b border-gray-100 py-5 px-6">
+            <Card className="border border-gray-300 rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-white border-b py-5 px-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <CardTitle className="text-base font-bold text-gray-800">Tren Pertumbuhan</CardTitle>
@@ -126,8 +126,8 @@ export function AnalyticsCharts() {
             </Card>
 
             {/* Engagement Chart */}
-            <Card className="border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-white border-b border-gray-100 py-5 px-6">
+            <Card className="border border-gray-300 rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-white border-b py-5 px-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <CardTitle className="text-base font-bold text-gray-800">Metrik Aktivitas</CardTitle>

@@ -4,7 +4,7 @@ import { Timer } from './Timer'
 
 export function LogAktivitasSistem() {
     return (
-        <Card className='border text-gray-500 w-full p-3 rounded-2xl shadow-sm'>
+        <Card className='border border-gray-300 text-gray-500 w-full p-3 rounded-xl shadow-sm'>
             {/* header */}
             <div className='flex items-center justify-between'>
                 <div className='flex items-center text-sm gap-2'>
@@ -17,7 +17,7 @@ export function LogAktivitasSistem() {
                 </button>
             </div>
 
-            <hr className='bg-gray-100 my-4' />
+            <hr className='border-t border-gray-200 my-4' />
 
             {/* content */}
             <div>
