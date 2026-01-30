@@ -15,10 +15,12 @@ export const AuthLayout = ({
   headerSubtitle,
 }: AuthLayoutProps) => {
   return (
-    <AuroraBackground showRadialGradient className="min-h-screen w-full flex items-center justify-center p-4">
+    <AuroraBackground
+      showRadialGradient
+      className="min-h-screen w-full flex items-center justify-center p-4"
+    >
       {/* Main Card */}
-      <div className="w-full max-w-[420px] bg-white/80 backdrop-blur-xl shadow-2xl rounded-3xl p-8 sm:p-10 border border-white/50 relative z-10 transition-all duration-300">
-
+      <div className="w-full max-w-[420px] bg-white/30 backdrop-blur-xl shadow-[0_20px_50px_-12px_rgba(79,70,229,0.3)] rounded-3xl p-8 sm:p-10 border border-white/50 relative z-10 transition-all duration-300">
         {/* Header Icon */}
         <div className="flex flex-col items-center gap-6 mb-8 text-center">
           <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-lg shadow-gray-200/50 flex items-center justify-center border border-white/60">
@@ -39,16 +41,10 @@ export const AuthLayout = ({
         </div>
 
         {/* Content (Form) */}
-        <div>
-          {children}
-        </div>
-
+        <div>{children}</div>
       </div>
 
-      {/* Footer Info */}
-      <div className="absolute bottom-6 text-center w-full text-xs font-semibold text-gray-400">
-        &copy; {new Date().getFullYear()} Kerjabaik Academy
-      </div>
+
     </AuroraBackground>
   );
 };
