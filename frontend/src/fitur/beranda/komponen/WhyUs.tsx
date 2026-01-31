@@ -18,8 +18,8 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ icon, title, description, del
         </div>
       </div>
       <div>
-        <h3 className="text-xl font-bold text-text-main dark:text-white group-hover:text-primary-landing transition-colors font-lexend">{title}</h3>
-        <p className="mt-2 text-text-sub dark:text-slate-400 leading-relaxed text-sm md:text-base font-lexend">{description}</p>
+        <h3 className="text-lg font-bold text-text-main dark:text-white group-hover:text-primary-landing transition-colors font-lexend">{title}</h3>
+        <p className="mt-1 text-text-sub dark:text-slate-400 leading-relaxed text-xs md:text-sm font-lexend">{description}</p>
       </div>
     </div>
   </ScrollReveal>
@@ -27,8 +27,8 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ icon, title, description, del
 
 export const WhyUs: React.FC = () => {
   return (
-    <section className="py-24 bg-surface-light dark:bg-surface-dark border-y border-slate-100 dark:border-slate-800 overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="py-16 bg-surface-light dark:bg-surface-dark border-y border-slate-100 dark:border-slate-800 overflow-hidden">
+      <div className="mx-auto max-w-6xl px-6 sm:px-12 lg:px-16">
         <div className="grid gap-16 lg:grid-cols-2 items-center">
           <ScrollReveal direction="right" className="order-2 lg:order-1 relative">
             <div className="grid grid-cols-2 gap-6">
@@ -60,8 +60,8 @@ export const WhyUs: React.FC = () => {
           
           <div className="order-1 lg:order-2">
             <ScrollReveal direction="left" delay={100}>
-              <h2 className="text-4xl font-extrabold tracking-tight text-text-main dark:text-white mb-6 font-lexend">Mengapa Profesional Memilih Kerjabaik Academy?</h2>
-              <p className="text-lg text-text-sub dark:text-slate-400 mb-12 font-lexend">Kami fokus pada hasil nyata. Kurikulum kami disusun berdasarkan kebutuhan pasar kerja global saat ini.</p>
+              <h2 className="text-2xl font-extrabold tracking-tight text-text-main dark:text-white mb-4 font-lexend">Mengapa Profesional Memilih Kerjabaik Academy?</h2>
+              <p className="text-sm text-text-sub dark:text-slate-400 mb-10 font-lexend">Kami fokus pada hasil nyata. Kurikulum kami disusun berdasarkan kebutuhan pasar kerja global saat ini.</p>
             </ScrollReveal>
             
             <div className="grid gap-8">

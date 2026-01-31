@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 export const Hero: React.FC = () => {
   return (
-    <section className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-32 bg-white dark:bg-slate-900">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24 bg-white dark:bg-slate-900">
+      <div className="mx-auto max-w-6xl px-6 sm:px-12 lg:px-16">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           <div className="flex flex-col items-start gap-8">
             <ScrollReveal direction="right" delay={100}>
@@ -17,23 +17,23 @@ export const Hero: React.FC = () => {
             </ScrollReveal>
             
             <ScrollReveal direction="right" delay={300}>
-              <h1 className="text-5xl font-extrabold tracking-tight text-text-main dark:text-white sm:text-6xl lg:text-7xl lg:leading-[1.1] font-lexend">
+              <h1 className="text-3xl font-extrabold tracking-tight text-text-main dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.1] font-lexend">
                 Tingkatkan Karier Anda bersama <span className="text-primary-landing">Kerjabaik Academy</span>
               </h1>
             </ScrollReveal>
             
             <ScrollReveal direction="right" delay={500}>
-              <p className="max-w-xl text-lg lg:text-xl text-text-sub dark:text-slate-400 leading-relaxed font-lexend">
+              <p className="max-w-lg text-sm lg:text-base text-text-sub dark:text-slate-400 leading-relaxed font-lexend">
                 Kuasai keterampilan yang paling dicari oleh pemberi kerja saat ini. Kursus fleksibel yang dipandu oleh ahli untuk akselerasi profesional Anda.
               </p>
             </ScrollReveal>
             
             <ScrollReveal direction="up" delay={700}>
               <div className="flex flex-col w-full sm:flex-row gap-4 sm:w-auto">
-                <Link to="/login" className="flex h-14 w-full sm:w-auto items-center justify-center rounded-xl bg-primary-landing px-10 text-base font-bold text-white shadow-xl shadow-primary-landing/25 transition-all hover:bg-primary-landing/90 hover:scale-105 active:scale-95 font-lexend">
+                <Link to="/login" className="flex h-12 w-full sm:w-auto items-center justify-center rounded-xl bg-primary-landing px-8 text-sm font-bold text-white shadow-xl shadow-primary-landing/25 transition-all hover:bg-primary-landing/90 hover:scale-105 active:scale-95 font-lexend">
                   Mulai Belajar Sekarang
                 </Link>
-                <Link to="/login" className="flex h-14 w-full sm:w-auto items-center justify-center rounded-xl bg-white border border-slate-200 px-10 text-base font-bold text-text-main shadow-sm transition-all hover:bg-slate-50 dark:bg-surface-dark dark:border-slate-700 dark:text-white dark:hover:bg-slate-800 font-lexend">
+                <Link to="/login" className="flex h-12 w-full sm:w-auto items-center justify-center rounded-xl bg-white border border-slate-200 px-8 text-sm font-bold text-text-main shadow-sm transition-all hover:bg-slate-50 dark:bg-surface-dark dark:border-slate-700 dark:text-white dark:hover:bg-slate-800 font-lexend">
                   Lihat Katalog
                 </Link>
               </div>
