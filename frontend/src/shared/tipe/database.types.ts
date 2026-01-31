@@ -619,6 +619,53 @@ export interface Database {
           created_at?: string;
         };
       };
+      sesi_zoom: {
+        Row: {
+          id: string;
+          id_lembaga: string;
+          id_kursus: string;
+          judul: string;
+          deskripsi: string | null;
+          tautan_zoom: string;
+          waktu_mulai: string;
+          durasi_menit: number;
+          recording_url: string | null;
+          status: "draft" | "published" | "archived";
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          id_lembaga: string;
+          id_kursus: string;
+          judul: string;
+          deskripsi?: string | null;
+          tautan_zoom: string;
+          waktu_mulai: string;
+          durasi_menit?: number;
+          recording_url?: string | null;
+          status?: "draft" | "published" | "archived";
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          id_lembaga?: string;
+          id_kursus?: string;
+          judul?: string;
+          deskripsi?: string | null;
+          tautan_zoom?: string;
+          waktu_mulai?: string;
+          durasi_menit?: number;
+          recording_url?: string | null;
+          status?: "draft" | "published" | "archived";
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

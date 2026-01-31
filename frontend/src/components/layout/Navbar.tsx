@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSidebarStore } from '../../store/useSidebarStore';
 import {
     SidebarLeft,
@@ -8,20 +7,20 @@ import {
     Add,
     Profile2User
 } from 'iconsax-react';
-import { cn } from '../../pustaka/utils';
+import { ModeToggle } from '../ui/ModeToggle';
 
 function Navbar() {
-    const { isSidebarOpen, toggleSidebar } = useSidebarStore();
+    const { toggleSidebar } = useSidebarStore();
 
     return (
-        <div className="bg-white sticky top-0 z-10 w-full">
+        <div className="bg-background sticky top-0 z-10 w-full border-b border-border">
             <div className='flex h-[var(--h-nav)] px-4 md:px-6 justify-between items-center'>
 
                 {/* Mobile Sidebar Toggle & Left Section */}
                 <div className='flex items-center gap-4'>
                     <button
                         onClick={toggleSidebar}
-                        className='flex md:hidden items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-lg'
+                        className='flex md:hidden items-center justify-center p-2 text-muted-foreground hover:bg-accent rounded-lg'
                     >
                         <SidebarLeft size={20} />
                     </button>
@@ -39,41 +38,42 @@ function Navbar() {
                              
                              I should probably keep Navbar profile as the main distinct welcome message.
                          */}
-                        <div className="h-10 w-10 rounded-full bg-slate-200 hidden md:flex items-center justify-center text-slate-500">
+                        <div className="h-10 w-10 rounded-full bg-secondary hidden md:flex items-center justify-center text-muted-foreground">
                             <Profile2User size={24} variant="Bold" />
                         </div>
                         <div className="hidden md:block">
-                            <p className='text-sm font-semibold text-gray-800'>Administrator</p>
-                            <p className='text-xs font-medium text-gray-500'>Selamat datang kembali</p>
+                            <p className='text-sm font-semibold text-foreground'>Administrator</p>
+                            <p className='text-xs font-medium text-muted-foreground'>Selamat datang kembali</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Section */}
                 <div className='flex items-center gap-2 md:gap-3'>
-                    <button className='flex items-center justify-center h-10 w-10 text-gray-500 hover:bg-gray-100 rounded-lg duration-200'>
+                    <ModeToggle />
+                    
+                    <button className='flex items-center justify-center h-10 w-10 text-muted-foreground hover:bg-accent rounded-lg duration-200'>
                         <SearchNormal1 size={20} />
                     </button>
 
-                    <button className='flex items-center justify-center h-10 w-10 text-gray-500 hover:bg-gray-100 rounded-lg duration-200 relative'>
+                    <button className='flex items-center justify-center h-10 w-10 text-muted-foreground hover:bg-accent rounded-lg duration-200 relative'>
                         <DirectNotification size={20} />
-                        <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
+                        <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border border-background"></span>
                     </button>
 
-                    <div className="h-6 w-px bg-gray-200 mx-1 hidden md:block"></div>
+                    <div className="h-6 w-px bg-border mx-1 hidden md:block"></div>
 
-                    <button className='hidden md:flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 duration-200'>
+                    <button className='hidden md:flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground border border-border rounded-lg hover:bg-accent duration-200'>
                         <CalendarEdit size={18} />
                         <span>Jadwal</span>
                     </button>
 
-                    <button className='flex items-center gap-2 px-3 py-2 text-xs font-medium text-white bg-template-primary rounded-lg hover:opacity-90 duration-200 shadow-sm shadow-indigo-200'>
+                    <button className='flex items-center gap-2 px-3 py-2 text-xs font-medium text-white bg-template-primary rounded-lg hover:opacity-90 duration-200 shadow-sm shadow-indigo-200 dark:shadow-none'>
                         <Add size={18} />
                         <span className='hidden md:inline'>Buat Baru</span>
                     </button>
                 </div>
             </div>
-            <hr className='bg-gray-200 mx-0' />
         </div>
     );
 }

@@ -15,6 +15,7 @@ export interface InstructorCourse {
   status: "draft" | "published" | "archived";
   id_instruktur: string;
   id_lembaga: string;
+  metadata: any;
   created_at: string;
   updated_at: string;
   // Computed fields
@@ -376,4 +377,44 @@ export interface SaveQuestionData {
   poin: number;
   penjelasan?: string;
   urutan: number;
+}
+
+// ============================================================================
+// Zoom Session Types
+// ============================================================================
+
+export type ZoomSessionStatus = "draft" | "published" | "archived";
+
+export interface ZoomSession {
+  id: string;
+  id_lembaga: string;
+  id_kursus: string;
+  judul: string;
+  deskripsi: string | null;
+  tautan_zoom: string;
+  waktu_mulai: string;
+  durasi_menit: number;
+  recording_url: string | null;
+  status: ZoomSessionStatus;
+  metadata: any;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateZoomSessionData {
+  judul: string;
+  deskripsi?: string | null;
+  tautan_zoom: string;
+  waktu_mulai: string;
+  durasi_menit?: number;
+}
+
+export interface UpdateZoomSessionData {
+  judul?: string;
+  deskripsi?: string | null;
+  tautan_zoom?: string;
+  waktu_mulai?: string;
+  durasi_menit?: number;
+  status?: ZoomSessionStatus;
+  recording_url?: string | null;
 }

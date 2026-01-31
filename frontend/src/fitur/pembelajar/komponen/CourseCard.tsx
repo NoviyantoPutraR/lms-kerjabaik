@@ -5,6 +5,7 @@ import { BookOpen, Clock, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Enrollment } from '../tipe';
 import { motion } from 'framer-motion';
+import { TombolUnduhSertifikat } from './TombolUnduhSertifikat';
 
 interface CourseCardProps {
     enrollment: Enrollment;
@@ -83,7 +84,14 @@ export function CourseCard({ enrollment, onContinue, variant = 'grid' }: CourseC
                     </div>
 
                     {/* Action List */}
-                    <div className="w-full md:w-auto md:pl-5 md:border-l border-gray-100 dark:border-zinc-800 flex items-center">
+                    <div className="w-full md:w-auto md:pl-5 md:border-l border-gray-100 dark:border-zinc-800 flex flex-col gap-2 items-center">
+                        {Math.round(typeof persentase_kemajuan === 'string' ? parseFloat(persentase_kemajuan) : persentase_kemajuan) >= 100 && (
+                            <TombolUnduhSertifikat 
+                                idKursus={kursus.id} 
+                                persentaseKemajuan={persentase_kemajuan} 
+                                judulKursus={kursus.judul} 
+                            />
+                        )}
                         <Button className="w-full md:w-auto rounded-lg font-bold h-9 text-xs px-5 shadow-sm transition-all active:scale-95" onClick={() => onContinue?.(enrollment.id)} asChild>
                             <Link to={`/pembelajar/learn/${enrollment.id}`}>
                                 {status === 'aktif' ? 'Lanjutkan Belajar' : 'Tinjau Materi'}
@@ -146,7 +154,16 @@ export function CourseCard({ enrollment, onContinue, variant = 'grid' }: CourseC
                 </div>
             </div>
 
-            <div className="p-4 pt-0">
+            <div className="p-4 pt-0 space-y-2">
+                {Math.round(typeof persentase_kemajuan === 'string' ? parseFloat(persentase_kemajuan) : persentase_kemajuan) >= 100 && (
+                    <div className="flex flex-col gap-2">
+                        <TombolUnduhSertifikat 
+                            idKursus={kursus.id} 
+                            persentaseKemajuan={persentase_kemajuan} 
+                            judulKursus={kursus.judul} 
+                        />
+                    </div>
+                )}
                 <Button className="w-full rounded-lg font-bold h-9 text-xs shadow-none group-hover:shadow-md transition-all active:scale-[0.98]" onClick={() => onContinue?.(enrollment.id)} asChild>
                     <Link to={`/pembelajar/learn/${enrollment.id}`}>
                         {status === 'aktif' ? 'Lanjutkan Belajar' : 'Tinjau Materi'}

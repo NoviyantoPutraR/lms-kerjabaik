@@ -199,7 +199,8 @@ export async function getInstructorCourseDetail(
     .from("pendaftaran_kursus")
     .select("*", { count: "exact", head: true })
     .eq("id_kursus", kursusId)
-    .eq("status", "aktif");
+    .neq("status", "selesai")
+    .neq("status", "dibatalkan"); // Exclude finished and cancelled
 
   const { count: completedStudents } = await supabase
     .from("pendaftaran_kursus")

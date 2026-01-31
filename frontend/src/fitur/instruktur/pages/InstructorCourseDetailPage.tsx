@@ -20,7 +20,11 @@ import {
   TrendingUp,
   ClipboardList,
   Edit,
+  Video,
 } from "lucide-react";
+import { ZoomSessionManager } from "../komponen/ZoomSessionManager";
+import { PengelolaSertifikat } from "../komponen/PengelolaSertifikat";
+import { useZoomSessions } from "../hooks/useZoom";
 import { useInstructorCourseDetail } from "../hooks/useInstructorCourses";
 import { useEnrolledStudents } from "../hooks/useStudentProgress";
 import { useSubmissions } from "../hooks/useAssessments";
@@ -61,6 +65,7 @@ export default function InstructorCourseDetailPage() {
   const { data: analytics, isLoading: analyticsLoading } = useCourseAnalytics(
     kursusId!,
   );
+  const { data: zoomSessions } = useZoomSessions(kursusId!);
 
   if (courseLoading) {
     return (
@@ -231,7 +236,11 @@ export default function InstructorCourseDetailPage() {
             <TabsTrigger value="submissions" className="text-xs px-3">
               Tugas ({submissions?.data.filter((s) => s.status === "pending").length || 0})
             </TabsTrigger>
+            <TabsTrigger value="zoom" className="text-xs px-3">
+              Sesi Live ({zoomSessions?.length || 0})
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs px-3">Analisis</TabsTrigger>
+            <TabsTrigger value="certificate" className="text-xs px-3">Sertifikat</TabsTrigger>
           </TabsList>
 
           <AnimatePresence mode="wait">
@@ -498,6 +507,20 @@ export default function InstructorCourseDetailPage() {
               </TabsContent>
             )}
 
+            {activeTab === "zoom" && (
+              <TabsContent value="zoom" forceMount={true} className="mt-3 focus-visible:outline-none">
+                <motion.div
+                  key="zoom"
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  <ZoomSessionManager kursusId={kursusId!} />
+                </motion.div>
+              </TabsContent>
+            )}
+
             {activeTab === "analytics" && (
               <TabsContent value="analytics" forceMount={true} className="mt-3 focus-visible:outline-none">
                 <motion.div
@@ -616,6 +639,22 @@ export default function InstructorCourseDetailPage() {
                       Data analytics tidak tersedia
                     </div>
                   )}
+                </motion.div>
+              </TabsContent>
+            )}
+            {activeTab === "certificate" && (
+              <TabsContent value="certificate" forceMount={true} className="mt-3 focus-visible:outline-none">
+                <motion.div
+                  key="certificate"
+                  variants={tabVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  <PengelolaSertifikat 
+                    kursusId={kursusId!} 
+                    initialConfig={course.metadata?.certificate_config} 
+                  />
                 </motion.div>
               </TabsContent>
             )}

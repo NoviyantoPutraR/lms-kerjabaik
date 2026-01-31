@@ -6,6 +6,7 @@ import { useAuthStore } from "@/fitur/autentikasi/stores/authStore";
 import { queryClient } from "@/pustaka/queryClient";
 
 import { Toaster } from "@/komponen/ui/toaster";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 function App() {
   const initialize = useAuthStore((state) => state.initialize);
@@ -16,15 +17,17 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <AppRouter />
-      </BrowserRouter>
-      <Toaster />
+      <ThemeProvider>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <AppRouter />
+        </BrowserRouter>
+        <Toaster />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

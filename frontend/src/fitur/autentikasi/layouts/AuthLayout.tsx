@@ -17,6 +17,7 @@ export const AuthLayout = ({
   return (
     <AuroraBackground
       showRadialGradient
+      forceLight={true}
       className="min-h-screen w-full flex items-center justify-center p-4"
     >
       {/* Main Card */}

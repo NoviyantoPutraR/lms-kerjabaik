@@ -13,23 +13,46 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/komponen/ui/card";
 import { useGrowthMetrics } from "../../hooks/useAnalytics";
 import { Chart as ChartIcon, Activity } from "iconsax-react";
+import { useThemeStore } from "@/stores/useThemeStore";
+import { useEffect, useState } from "react";
 
 export function AnalyticsCharts() {
     const { data: growthData, isLoading } = useGrowthMetrics("month");
+    const { theme } = useThemeStore();
+    const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+
+    useEffect(() => {
+        if (theme === "system") {
+            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+            setResolvedTheme(systemTheme);
+        } else {
+            setResolvedTheme(theme);
+        }
+    }, [theme]);
+
+    const isDark = resolvedTheme === "dark";
+
+    const axisColor = isDark ? "#9CA3AF" : "#6B7280";
+    const gridColor = isDark ? "#374151" : "#E5E7EB";
+    const tooltipBg = isDark ? "#1F2937" : "#FFFFFF";
+    const tooltipBorder = isDark ? "#374151" : "#F3F4F6";
+    const tooltipText = isDark ? "#F3F4F6" : "#1F2937";
 
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white/95 backdrop-blur border border-gray-100 p-4 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]">
-                    <p className="font-bold text-gray-800 mb-2 text-xs uppercase tracking-wider">{label}</p>
+                <div className="bg-card/95 backdrop-blur border border-border p-4 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]">
+                    <p className="font-bold text-foreground mb-2 text-xs uppercase tracking-wider">{label}</p>
                     {payload.map((entry: any, index: number) => (
                         <div key={index} className="flex items-center gap-2 text-xs font-medium mb-1 last:mb-0">
                             <div
                                 className="w-2 h-2 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-gray-500 capitalize">{entry.name}:</span>
-                            <span className="font-bold text-gray-700">{entry.value}</span>
+                            <span className="text-muted-foreground capitalize">{entry.name}:</span>
+                            <span className="font-bold text-foreground">{entry.value}</span>
                         </div>
                     ))}
                 </div>
@@ -42,8 +65,8 @@ export function AnalyticsCharts() {
         return (
             <div className="grid gap-6 md:grid-cols-2">
                 {[1, 2].map((i) => (
-                    <Card key={i} className="border border-gray-300 rounded-xl shadow-sm h-[400px] flex items-center justify-center">
-                        <div className="w-10 h-10 border-4 border-violet-100 border-t-violet-500 rounded-full animate-spin" />
+                    <Card key={i} className="border border-border rounded-xl shadow-sm h-[400px] flex items-center justify-center bg-card">
+                        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
                     </Card>
                 ))}
             </div>
@@ -53,17 +76,17 @@ export function AnalyticsCharts() {
     return (
         <div className="grid gap-6 lg:grid-cols-2">
             {/* Growth Trend Chart */}
-            <Card className="border border-gray-300 rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-white border-b py-5 px-6">
+            <Card className="border border-border rounded-xl shadow-sm overflow-hidden bg-card">
+                <CardHeader className="bg-card border-b border-border py-5 px-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-base font-bold text-gray-800">Tren Pertumbuhan</CardTitle>
-                            <CardDescription className="text-xs text-gray-400 mt-1">
+                            <CardTitle className="text-base font-bold text-foreground">Tren Pertumbuhan</CardTitle>
+                            <CardDescription className="text-xs text-muted-foreground mt-1">
                                 Aktivitas pengguna dan pendaftaran kursus (12 Periode Terakhir).
                             </CardDescription>
                         </div>
-                        <div className="p-2 bg-indigo-50 rounded-xl">
-                            <ChartIcon size={20} className="text-indigo-500" variant="Bold" />
+                        <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+                            <ChartIcon size={20} className="text-indigo-500 dark:text-indigo-400" variant="Bold" />
                         </div>
                     </div>
                 </CardHeader>
@@ -84,21 +107,21 @@ export function AnalyticsCharts() {
                                         <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                                 <XAxis
                                     dataKey="date"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                                    tick={{ fill: axisColor, fontSize: 10 }}
                                     dy={10}
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                                    tick={{ fill: axisColor, fontSize: 10 }}
                                 />
                                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#7B6CF0', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }} />
+                                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: axisColor }} />
                                 <Area
                                     type="monotone"
                                     dataKey="new_users"
@@ -126,17 +149,17 @@ export function AnalyticsCharts() {
             </Card>
 
             {/* Engagement Chart */}
-            <Card className="border border-gray-300 rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-white border-b py-5 px-6">
+            <Card className="border border-border rounded-xl shadow-sm overflow-hidden bg-card">
+                <CardHeader className="bg-card border-b border-border py-5 px-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-base font-bold text-gray-800">Metrik Aktivitas</CardTitle>
-                            <CardDescription className="text-xs text-gray-400 mt-1">
+                            <CardTitle className="text-base font-bold text-foreground">Metrik Aktivitas</CardTitle>
+                            <CardDescription className="text-xs text-muted-foreground mt-1">
                                 Perbandingan kursus baru dan tenant baru yang bergabung.
                             </CardDescription>
                         </div>
-                        <div className="p-2 bg-rose-50 rounded-xl">
-                            <Activity size={20} className="text-rose-500" variant="Bold" />
+                        <div className="p-2 bg-rose-50 dark:bg-rose-900/20 rounded-xl">
+                            <Activity size={20} className="text-rose-500 dark:text-rose-400" variant="Bold" />
                         </div>
                     </div>
                 </CardHeader>
@@ -148,21 +171,21 @@ export function AnalyticsCharts() {
                                 margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                                 barSize={12}
                             >
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                                 <XAxis
                                     dataKey="date"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                                    tick={{ fill: axisColor, fontSize: 10 }}
                                     dy={10}
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                                    tick={{ fill: axisColor, fontSize: 10 }}
                                 />
-                                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb' }} />
-                                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? '#374151' : '#f9fafb' }} />
+                                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: axisColor }} />
                                 <Bar
                                     dataKey="new_courses"
                                     name="Kursus Baru"

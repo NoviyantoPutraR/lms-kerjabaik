@@ -497,69 +497,188 @@ export async function getCourseAnalytics(
     .select("*", { count: "exact", head: true })
     .eq("id_kursus", kursusId);
 
+  // FIX: Active students should be anything NOT selesai or dibatalkan
   const { count: activeStudents } = await supabase
     .from("pendaftaran_kursus")
     .select("*", { count: "exact", head: true })
     .eq("id_kursus", kursusId)
-    .eq("status", "aktif"); // 'aktif' based on schema
+    .neq("status", "selesai")
+    .neq("status", "dibatalkan");
 
   const { count: completedStudents } = await supabase
     .from("pendaftaran_kursus")
     .select("*", { count: "exact", head: true })
     .eq("id_kursus", kursusId)
-    .eq("status", "selesai"); // 'selesai' based on schema
+    .eq("status", "selesai");
 
   const completionRate =
     totalStudents && totalStudents > 0
       ? ((completedStudents || 0) / totalStudents) * 100
       : 0;
 
-  // Get assessment IDs
-  const { data: assessments } = (await supabase
+  // --- Submissions & Grades Logic ---
+
+  // 1. Quizzes (Percobaan Asesmen)
+  const { data: quizAssessments } = (await supabase
     .from("asesmen")
     .select("id")
-    .eq("id_kursus", kursusId)) as { data: { id: string }[] | null };
-  const assessmentIds = assessments?.map((a) => a.id) || [];
-
-  let submissions: any[] = [];
-  if (assessmentIds.length > 0) {
+    .eq("id_kursus", kursusId)
+    .not("tipe", "eq", "tugas")) as { data: { id: string }[] | null };
+  
+  const quizIds = quizAssessments?.map((a) => a.id) || [];
+  let quizSubmissions: any[] = [];
+  
+  if (quizIds.length > 0) {
     const { data } = await supabase
       .from("percobaan_asesmen")
       .select("nilai, status")
-      .in("id_asesmen", assessmentIds);
-    submissions = data || [];
+      .in("id_asesmen", quizIds);
+    quizSubmissions = data || [];
   }
 
-  // Calculate Average Score (completed submissions with score)
-  const scoredSubmissions = submissions.filter(
-    (s) => s.status === "selesai" && s.nilai !== null,
-  );
+  // 2. Tasks (Pengumpulan Tugas)
+  const { data: taskAssessments } = (await supabase
+    .from("asesmen")
+    .select("id")
+    .eq("id_kursus", kursusId)
+    .eq("tipe", "tugas")) as { data: { id: string }[] | null };
+
+  const taskAssessmentIds = taskAssessments?.map(a => a.id) || [];
+  let taskSubmissions: any[] = [];
+  
+  if (taskAssessmentIds.length > 0) {
+    // Find tasks linked to these assessments
+    const { data: tasks } = (await supabase
+      .from("tugas")
+      .select("id")
+      .in("id_asesmen", taskAssessmentIds)) as { data: { id: string }[] | null };
+    
+    const taskIds = tasks?.map(t => t.id) || [];
+    
+    if (taskIds.length > 0) {
+      const { data } = (await supabase
+        .from("pengumpulan_tugas")
+        .select("nilai, status")
+        .in("id_tugas", taskIds)) as { data: { nilai: number | null; status: string }[] | null };
+      taskSubmissions = data || [];
+    }
+  }
+
+  // Calculate Average Score (Quizzes + Tasks)
+  // Only consider graded submissions (nilai is not null)
+  const scoredQuiz = quizSubmissions.filter(s => s.status === "selesai" && s.nilai !== null);
+  const scoredTasks = taskSubmissions.filter(s => s.status === "dinilai" && s.nilai !== null);
+  
+  const allScored = [...scoredQuiz, ...scoredTasks];
+  
   const avgScore =
-    scoredSubmissions.length > 0
-      ? scoredSubmissions.reduce((sum, s) => sum + (s.nilai || 0), 0) /
-      scoredSubmissions.length
+    allScored.length > 0
+      ? allScored.reduce((sum, s) => sum + (s.nilai || 0), 0) / allScored.length
       : 0;
 
-  // Pending submissions (finished but no grade)
-  const pendingSubmissions = submissions.filter(
+  // Pending submissions 
+  // Quizzes: status 'selesai' but nilai null (manually graded quizzes pending)
+  // Tasks: status not 'dinilai' (e.g. 'dikirim', 'menunggu_penilaian')
+  const pendingQuizzes = quizSubmissions.filter(
     (s) => s.status === "selesai" && s.nilai === null,
   ).length;
 
-  // Module Completion Stats (Mocked as modul_progress table is missing)
+  const pendingTasks = taskSubmissions.filter(
+    (s) => s.status !== "dinilai"
+  ).length;
+
+  const totalPending = pendingQuizzes + pendingTasks;
+
+  // --- Module Completion Logic ---
+
+  // 1. Get all modules
   const { data: modules } = (await supabase
     .from("modul")
     .select("id, title:judul")
     .eq("id_kursus", kursusId)) as { data: { id: string; title: string }[] | null };
 
+  // 2. Get all materials for these modules to map material -> module
+  const { data: allMaterials } = (await supabase
+    .from("materi")
+    .select("id, id_modul")
+    .in(
+      "id_modul",
+      (modules || []).map((m) => m.id),
+    )) as { data: { id: string; id_modul: string }[] | null };
+  
+  const materialMap = new Map<string, string>(); // materialId -> moduleId
+  const moduleMaterialCounts = new Map<string, number>(); // moduleId -> count
+  
+  (allMaterials || []).forEach(m => {
+    materialMap.set(m.id, m.id_modul);
+    moduleMaterialCounts.set(m.id_modul, (moduleMaterialCounts.get(m.id_modul) || 0) + 1);
+  });
+
+  // 3. Get all completed materials by students in this course
+  // We fetch materials that are 'selesai' for students enrolled in this course
+  // Optimization: First get student IDs enrolled in this course
+  const { data: enrolledStudents } = (await supabase
+    .from("pendaftaran_kursus")
+    .select("id_pengguna")
+    .eq("id_kursus", kursusId)) as { data: { id_pengguna: string }[] | null };
+    
+  const studentIds = enrolledStudents?.map(s => s.id_pengguna) || [];
+  
+  let studentModuleCompletionMap = new Map<string, Map<string, number>>(); // studentId -> { moduleId -> completedCount }
+
+  if (studentIds.length > 0 && allMaterials && allMaterials.length > 0) {
+    const { data: progressData } = (await supabase
+      .from("kemajuan_belajar")
+      .select("id_pengguna, id_materi")
+      .eq("status", "selesai")
+      .in("id_pengguna", studentIds)
+      .in(
+        "id_materi",
+        allMaterials.map((m) => m.id),
+      )) as {
+      data: { id_pengguna: string; id_materi: string }[] | null;
+    };
+      
+    (progressData || []).forEach(p => {
+      const moduleId = materialMap.get(p.id_materi);
+      if (moduleId) {
+        if (!studentModuleCompletionMap.has(p.id_pengguna)) {
+          studentModuleCompletionMap.set(p.id_pengguna, new Map());
+        }
+        const studentProgress = studentModuleCompletionMap.get(p.id_pengguna)!;
+        studentProgress.set(moduleId, (studentProgress.get(moduleId) || 0) + 1);
+      }
+    });
+  }
+
+  // 4. Calculate stats per module
   const moduleCompletion: ModuleCompletion[] = (modules || []).map(
-    (module) => ({
-      module_id: module.id,
-      module_title: module.title,
-      total_students: totalStudents || 0,
-      completed_count: 0, // Mock
-      completion_rate: 0, // Mock
-      avg_time_spent_minutes: 0, // Mock
-    }),
+    (module) => {
+      const totalMaterials = moduleMaterialCounts.get(module.id) || 0;
+      let completedCount = 0;
+      
+      if (totalMaterials > 0) {
+        // Count how many students have completed all materials in this module
+        for (const [_, studentProgress] of studentModuleCompletionMap) {
+          if ((studentProgress.get(module.id) || 0) >= totalMaterials) {
+            completedCount++;
+          }
+        }
+      }
+
+      const rate = totalStudents && totalStudents > 0 
+        ? (completedCount / totalStudents) * 100 
+        : 0;
+
+      return {
+        module_id: module.id,
+        module_title: module.title,
+        total_students: totalStudents || 0,
+        completed_count: completedCount,
+        completion_rate: Math.round(rate * 10) / 10,
+        avg_time_spent_minutes: 0, // Still mock as we don't have time tracking yet
+      };
+    },
   );
 
   // Grade Distribution
@@ -572,12 +691,12 @@ export async function getCourseAnalytics(
   ];
 
   const gradeDistribution: GradeDistribution[] = gradeRanges.map((r) => {
-    const count = scoredSubmissions.filter(
+    const count = allScored.filter(
       (s) => s.nilai !== null && s.nilai >= r.min && s.nilai <= r.max,
     ).length;
     const percentage =
-      scoredSubmissions.length > 0
-        ? (count / scoredSubmissions.length) * 100
+      allScored.length > 0
+        ? (count / allScored.length) * 100
         : 0;
 
     return {
@@ -595,7 +714,7 @@ export async function getCourseAnalytics(
     completed_students: completedStudents || 0,
     completion_rate: Math.round(completionRate * 10) / 10,
     avg_score: Math.round(avgScore * 10) / 10,
-    pending_submissions: pendingSubmissions,
+    pending_submissions: totalPending,
     module_completion: moduleCompletion,
     grade_distribution: gradeDistribution,
     engagement_trend: [],

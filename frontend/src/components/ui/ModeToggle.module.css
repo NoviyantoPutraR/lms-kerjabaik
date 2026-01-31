@@ -1,0 +1,104 @@
+.container {
+  /* Scale content to fit if needed. Using font-size to control em units */
+  font-size: 12px; /* Base size control */
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Variables matching the SCSS logic */
+.label {
+  --d: 2.5em; /* Dimension */
+  --p: 0.5em; /* Padding */
+  --g: 0.25em; /* Gap */
+  --i: 0;     /* State */
+  --j: calc(1 - var(--i));
+
+  /* Layout - FORCE SIZE & HIDE TEXT */
+  display: block;
+  width: calc(var(--d) * 2 + var(--p) * 2 + var(--g));
+  height: calc(var(--d) + var(--p) * 2);
+  padding: 0; /* Handled by absolute positioning offsets */
+  
+  border-radius: calc(var(--d) + var(--p));
+  background: hsl(199, 98%, calc(var(--j) * 48%));
+  
+  /* HIDDEN TEXT FIX: */
+  /* Remove font-size: 0 because dimensions use em! */
+  /* Hide text via indent */
+  text-indent: -9999px;
+  overflow: hidden;
+
+  color: transparent;
+  user-select: none;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+/* Ensure em units are based on something sensible if component overrides */
+.container {
+  font-size: 13px; /* Slightly larger base */
+  position: relative;
+}
+
+/* Helper to update state */
+.checkbox:checked + .label {
+  --i: 1;
+}
+
+.label::before,
+.label::after {
+  content: '';
+  position: absolute;
+  top: var(--p);
+  width: var(--d);
+  height: var(--d);
+  transition: inherit;
+  border-radius: 50%;
+}
+
+/* Sun / Star (Starts Left) */
+.label::before {
+  left: var(--p);
+  background: hsl(60, 100%, 50%);
+  transform-origin: 20% 20%;
+  
+  /* Animation State */
+  /* i=0: Default. i=1: Move Right + Scale Down */
+  transform: translate(calc(var(--i) * (100% + var(--g)))) scale(calc(1 - var(--i) * 0.5));
+  
+  /* Circular Sun by default */
+  clip-path: circle(50% at 50% 50%);
+  z-index: 1;
+}
+
+/* Morph to Star in Night Mode */
+.checkbox:checked + .label::before {
+  /* Offset star slightly to fit in Moon Hole? 
+     Moon Hole is at 19% 19%. 
+     Sun Transform moves it to EXACT position of Moon (Right Slot).
+     Scale shrinks it to center.
+     We want it slightly Top-Left (-10%) to peek through hole?
+  */
+  transform: translate(calc(var(--i) * (100% + var(--g)) - 8%), -8%) scale(0.4); 
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* Moon (Starts Right) */
+.label::after {
+  left: calc(var(--d) + var(--p) + var(--g));
+  background: radial-gradient(circle at 19% 19%, transparent 41%, #fff 43%);
+  z-index: 2; /* On top of Star */
+  
+  /* i=0 (Day): Move UP/Hidden. i=1 (Night): Reset to 0 */
+  transform: translateY(calc((1 - var(--i)) * -250%)); /* Move far up */
+}

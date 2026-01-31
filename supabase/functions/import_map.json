@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "std/": "https://deno.land/std@0.168.0/",
+    "http/": "https://deno.land/std@0.168.0/http/",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "pdf-lib": "https://esm.sh/pdf-lib@1.17.1"
+  }
+}

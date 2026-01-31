@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -90,7 +89,7 @@ export default function Sidebar() {
             <div className="absolute -right-3 top-[52px] z-50">
                 <button
                     onClick={toggleCollapse}
-                    className="bg-white border border-gray-200 rounded-full p-1.5 text-gray-500 hover:text-template-primary hover:border-violet-200 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95"
+                    className="bg-white border border-gray-200 rounded-full p-1.5 text-gray-500 hover:text-primary hover:border-primary/20 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95"
                     title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                 >
                     {isCollapsed ? <SidebarRight size={16} variant="Bold" /> : <SidebarLeft size={16} variant="Bold" />}
@@ -100,7 +99,7 @@ export default function Sidebar() {
             <div className="w-full h-full flex flex-col justify-between overflow-x-hidden overflow-y-auto custom-scrollbar bg-[#f3f4f6]">
                 <div>
                     {/* Logo - Compact 60px Width */}
-                    <div className="flex items-center h-[60px]"> {/* Reduced height */}
+                    <div className="flex items-center h-[60px]"> {/* Matched Navbar Height var(--h-nav) */}
                         <div className="w-[60px] shrink-0 flex items-center justify-center">
                             <img
                                 src={logo2}
@@ -118,7 +117,7 @@ export default function Sidebar() {
                                     transition={{ duration: 0.3, delay: 0.1 }}
                                     className="whitespace-nowrap overflow-hidden"
                                 >
-                                    <h1 className='text-sm font-bold text-gray-800 tracking-wide'>Akademi</h1>
+                                    <h1 className='text-sm font-bold text-gray-900 tracking-wide'>Akademi</h1>
                                     <p className='text-[10px] text-gray-500 font-medium tracking-wider uppercase'>KerjaBaik.ai</p>
                                 </motion.div>
                             )}
@@ -126,7 +125,7 @@ export default function Sidebar() {
                     </div>
 
                     <div className="mx-4 my-1">
-                        <hr className='bg-gray-100' />
+                        <hr className='bg-gray-200 border-gray-200' />
                     </div>
 
                     {/* Menu Items - Compact Spacing */}
@@ -137,21 +136,21 @@ export default function Sidebar() {
                                 to={item.href}
                                 className={cn(
                                     "flex items-center h-9 w-full relative group transition-all duration-200",
-                                    // Hover effect: Only shifts right when NOT active and NOT collapsed
+                                    // Hover effect
                                     !isCollapsed && (pathname !== item.href) && "hover:pl-2",
-                                    // Active state: No bg, just text color
-                                    pathname === item.href ? "text-template-primary" : "text-gray-500 hover:text-gray-900"
+                                    // Active state
+                                    pathname === item.href ? "text-primary" : "text-gray-500 hover:text-gray-900"
                                 )}
                                 title={isCollapsed ? item.label : ""}
                             >
-                                {/* Icon Container - FIXED WIDTH (60px) for compact stability */}
+                                {/* Icon Container */}
                                 <div className="w-[60px] shrink-0 flex items-center justify-center">
                                     <item.icon
-                                        size={18} // Smaller icon
+                                        size={18}
                                         variant={pathname === item.href ? 'Bold' : 'Linear'}
                                         className={cn(
                                             "transition-colors duration-200",
-                                            pathname === item.href ? "text-template-primary" : "text-gray-400 group-hover:text-gray-600"
+                                            pathname === item.href ? "text-primary" : "text-gray-400 group-hover:text-gray-900"
                                         )}
                                     />
                                 </div>
@@ -164,8 +163,8 @@ export default function Sidebar() {
                                             exit={{ opacity: 0, x: -10 }}
                                             transition={{ duration: 0.3 }}
                                             className={cn(
-                                                "whitespace-nowrap overflow-hidden text-xs font-medium pr-4", // Smaller text
-                                                pathname === item.href ? "text-template-primary font-semibold" : "text-gray-600 group-hover:text-gray-900"
+                                                "whitespace-nowrap overflow-hidden text-xs font-medium pr-4",
+                                                pathname === item.href ? "text-primary font-semibold" : "text-gray-500 group-hover:text-gray-900"
                                             )}
                                         >
                                             {item.label}
@@ -180,14 +179,14 @@ export default function Sidebar() {
                 <div className="flex flex-col gap-1 pb-4">
                     {/* User Profile */}
                     <Link to="/profil" className={cn(
-                        'flex items-center w-full cursor-pointer group hover:bg-white/50 dark:hover:bg-zinc-800/50 py-1.5 transition-colors border-y border-transparent hover:border-gray-200 dark:hover:border-gray-800',
-                        pathname === '/profil' && "bg-white dark:bg-zinc-800 border-gray-200 dark:border-gray-800"
+                        'flex items-center w-full cursor-pointer group hover:bg-white py-1.5 transition-colors border-y border-transparent hover:border-gray-200',
+                        pathname === '/profil' && "bg-white border-gray-200"
                     )}>
                         <div className="w-[60px] shrink-0 flex items-center justify-center">
                             <div className={cn(
-                                "h-9 w-9 rounded-full flex items-center justify-center text-[10px] text-white font-bold ring-2 ring-white dark:ring-zinc-900 shadow-sm z-10 transition-transform duration-200 group-hover:scale-105",
-                                user?.nama_lengkap ? getAvatarColor(user.nama_lengkap) : "bg-gray-400",
-                                pathname === '/profil' && "ring-template-primary/20"
+                                "h-9 w-9 rounded-full flex items-center justify-center text-[10px] text-white font-bold ring-2 ring-background shadow-sm z-10 transition-transform duration-200 group-hover:scale-105",
+                                user?.nama_lengkap ? getAvatarColor(user.nama_lengkap) : "bg-gray-200",
+                                pathname === '/profil' && "ring-primary/20"
                             )}>
                                 {user?.url_foto ? (
                                     <img src={user.url_foto} alt={user.nama_lengkap} className="h-full w-full rounded-full object-cover" />
@@ -208,16 +207,16 @@ export default function Sidebar() {
                                 >
                                     <p className={cn(
                                         'text-xs font-bold truncate transition-colors',
-                                        pathname === '/profil' ? "text-template-primary" : "text-gray-800 dark:text-gray-200"
+                                        pathname === '/profil' ? "text-primary" : "text-gray-900"
                                     )}>{user?.nama_lengkap || "User"}</p>
-                                    <p className='text-[9px] font-medium text-gray-400 truncate'>{user?.role ? getRoleLabel(user.role) : "-"}</p>
+                                    <p className='text-[9px] font-medium text-gray-500 truncate'>{user?.role ? getRoleLabel(user.role) : "-"}</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </Link>
 
                     <div className="mx-4">
-                        <hr className='bg-gray-100' />
+                        <hr className='bg-gray-200 border-gray-200' />
                     </div>
 
                     {/* Logout Button */}
@@ -226,7 +225,6 @@ export default function Sidebar() {
                             onClick={logout}
                             className={cn(
                                 "w-full flex items-center h-9 w-full relative group transition-all duration-200",
-                                // Hover effect for logout
                                 !isCollapsed && "hover:pl-2"
                             )}
                             title={isCollapsed ? "Keluar" : ""}
@@ -235,7 +233,7 @@ export default function Sidebar() {
                                 <LogoutCurve
                                     size={18}
                                     variant="Bulk"
-                                    className="text-gray-400 group-hover:text-red-500 transition-colors duration-200"
+                                    className="text-gray-500 group-hover:text-red-500 transition-colors duration-200"
                                 />
                             </div>
 
