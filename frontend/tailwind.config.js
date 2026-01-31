@@ -22,6 +22,8 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ["Inter", "sans-serif"],
+				display: ["Lexend", "sans-serif"],
+				lexend: ["Lexend", "sans-serif"],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -65,6 +67,14 @@ export default {
 					'5': 'hsl(var(--chart-5))'
 				},
 				'template-primary': '#7B6CF0',
+				// Landing Page Colors
+				"primary-landing": "#135bec",
+				"background-light": "#f8fafc",
+				"background-dark": "#0f172a",
+				"surface-light": "#ffffff",
+				"surface-dark": "#1e293b",
+				"text-main": "#0f172a",
+				"text-sub": "#475569",
 			},
 			fontSize: {
 				'xxs': '.625rem', // 10px

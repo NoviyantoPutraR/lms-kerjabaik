@@ -25,6 +25,7 @@ import { AssessmentsListPage } from "@/fitur/pembelajar/pages/AssessmentsListPag
 import { TakeAssessmentPage } from "@/fitur/pembelajar/pages/TakeAssessmentPage";
 import { AssessmentResultsPage } from "@/fitur/pembelajar/pages/AssessmentResultsPage";
 import { ProfilePage } from "@/fitur/pengguna/pages/ProfilePage";
+import { LandingPage } from "@/fitur/beranda/pages/LandingPage";
 
 // Assessment pages
 import { AssessmentsPage } from "@/fitur/penilaian/pages/AssessmentsPage";
@@ -128,7 +129,8 @@ function DashboardRouter() {
 export function AppRouter() {
   return (
     <Routes>
-      {/* Auth Routes */}
+      {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
 
       {/* Protected Routes */}
@@ -143,7 +145,6 @@ export function AppRouter() {
         <Route path="/profil" element={<ProfilePage />} />
 
         {/* Dashboard */}
-        <Route path="/" element={<DashboardRouter />} />
         <Route path="/dashboard" element={<DashboardRouter />} />
         <Route path="/pembelajar/dashboard" element={<PembelajarDashboard />} />
 
