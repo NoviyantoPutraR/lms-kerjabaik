@@ -18,7 +18,6 @@ import {
   ArrowUp,
   ArrowDown,
   Save,
-  GripVertical,
 } from "lucide-react";
 import {
   useAssessmentQuestions,
@@ -123,116 +122,118 @@ export function QuizBuilder({ assessmentId, onSaveSuccess }: QuizBuilderProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">
-          Daftar Pertanyaan ({questions.length})
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b pb-3 mb-2">
+        <h3 className="text-base font-semibold">
+          Daftar Pertanyaan <span className="text-muted-foreground font-normal text-sm">({questions.length} butir)</span>
         </h3>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={addQuestion}>
-            <Plus className="mr-2 h-4 w-4" />
-            Tambah Pertanyaan
+          <Button variant="outline" size="sm" onClick={addQuestion} className="h-8 text-xs">
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            Tambah
           </Button>
           <Button
+            size="sm"
             onClick={handleSave}
             disabled={saveMutation.isPending || questions.length === 0}
+            className="h-8 text-xs"
           >
-            <Save className="mr-2 h-4 w-4" />
+            <Save className="mr-1.5 h-3.5 w-3.5" />
             {saveMutation.isPending ? "Menyimpan..." : "Simpan Semua"}
           </Button>
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {questions.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-10">
-              <p className="text-muted-foreground mb-4">
-                Belum ada pertanyaan. Mulai dengan menambah pertanyaan baru.
+          <Card className="border-dashed bg-muted/20">
+            <CardContent className="flex flex-col items-center justify-center py-8">
+              <p className="text-sm text-muted-foreground mb-3">
+                Belum ada pertanyaan.
               </p>
-              <Button onClick={addQuestion}>
-                <Plus className="mr-2 h-4 w-4" />
-                Tambah Pertanyaan Pertama
+              <Button size="sm" onClick={addQuestion} className="h-8 text-xs">
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Mulai Buat Soal
               </Button>
             </CardContent>
           </Card>
         ) : (
           questions.map((q, qIndex) => (
-            <Card key={qIndex} className="relative">
-              <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <GripVertical className="h-4 w-4 text-muted-foreground" />
-                  Pertanyaan #{qIndex + 1}
+            <Card key={qIndex} className="relative overflow-hidden group border-border/60 shadow-sm">
+              <CardHeader className="py-2.5 px-4 bg-muted/30 border-b flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-semibold flex items-center gap-2 text-foreground/80">
+                  <div className="bg-background border rounded px-1.5 py-0.5 text-[10px] text-muted-foreground font-mono">
+                    #{qIndex + 1}
+                  </div>
+                  <span className="truncate max-w-[300px]">{q.pertanyaan || "Pertanyaan Baru"}</span>
                 </CardTitle>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-6 w-6"
                     onClick={() => moveQuestion(qIndex, "up")}
                     disabled={qIndex === 0}
                   >
-                    <ArrowUp className="h-4 w-4" />
+                    <ArrowUp className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="h-6 w-6"
                     onClick={() => moveQuestion(qIndex, "down")}
                     disabled={qIndex === questions.length - 1}
                   >
-                    <ArrowDown className="h-4 w-4" />
+                    <ArrowDown className="h-3.5 w-3.5" />
                   </Button>
+                  <div className="w-px h-3 bg-border mx-1" />
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-destructive hover:text-destructive"
+                    className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => removeQuestion(qIndex)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-8 space-y-2">
-                    <Label>Teks Pertanyaan</Label>
+
+              <CardContent className="p-4 space-y-4">
+                {/* Top Row: Question + Config */}
+                <div className="flex gap-4">
+                  <div className="flex-1 space-y-1.5">
+                    <Label className="text-xs font-medium text-muted-foreground">Teks Pertanyaan</Label>
                     <Textarea
-                      placeholder="Masukkan pertanyaan di sini..."
+                      placeholder="Tulis pertanyaan di sini..."
                       value={q.pertanyaan}
                       onChange={(e) =>
                         updateQuestion(qIndex, { pertanyaan: e.target.value })
                       }
+                      className="min-h-[80px] text-sm resize-none"
                     />
                   </div>
-                  <div className="col-span-4 space-y-4">
-                    <div className="space-y-2">
-                      <Label>Tipe</Label>
+                  <div className="w-[180px] space-y-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">Tipe Soal</Label>
                       <Select
                         value={q.tipe}
                         onValueChange={(val) =>
                           updateQuestion(qIndex, { tipe: val as QuestionType })
                         }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="h-8 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="pilihan_ganda">
-                            Pilihan Ganda
-                          </SelectItem>
-                          <SelectItem value="benar_salah">
-                            Benar / Salah
-                          </SelectItem>
-                          <SelectItem value="isian_singkat">
-                            Isian Singkat
-                          </SelectItem>
-                          <SelectItem value="esai">
-                            Esai (Manual Grade)
-                          </SelectItem>
+                          <SelectItem value="pilihan_ganda">Pilihan Ganda</SelectItem>
+                          <SelectItem value="benar_salah">Benar/Salah</SelectItem>
+                          <SelectItem value="isian_singkat">Isian Singkat</SelectItem>
+                          <SelectItem value="esai">Esai</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Poin</Label>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">Poin</Label>
                       <Input
                         type="number"
                         min="0"
@@ -242,100 +243,118 @@ export function QuizBuilder({ assessmentId, onSaveSuccess }: QuizBuilderProps) {
                             poin: parseInt(e.target.value),
                           })
                         }
+                        className="h-8 text-xs"
                       />
                     </div>
                   </div>
                 </div>
 
-                {q.tipe === "pilihan_ganda" && (
-                  <div className="space-y-3 pl-4 border-l-2 border-primary/20">
-                    <Label className="text-xs uppercase text-muted-foreground">
-                      Opsi Jawaban
-                    </Label>
-                    {q.opsi.choices.map((choice: string, cIndex: number) => (
-                      <div key={cIndex} className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name={`correct-${qIndex}`}
-                          checked={String(q.jawaban_benar) === String(cIndex)}
-                          onChange={() =>
-                            updateQuestion(qIndex, {
-                              jawaban_benar: String(cIndex),
-                            })
-                          }
-                          className="h-4 w-4 text-primary"
-                        />
-                        <Input
-                          placeholder={`Opsi ${cIndex + 1}`}
-                          value={choice}
-                          onChange={(e) => {
-                            const newChoices = [...q.opsi.choices];
-                            newChoices[cIndex] = e.target.value;
-                            updateQuestion(qIndex, {
-                              opsi: { ...q.opsi, choices: newChoices },
-                            });
-                          }}
-                        />
+                {/* Answer Area */}
+                <div className="bg-muted/30 rounded-md p-3 border border-border/50">
+                  {q.tipe === "pilihan_ganda" && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between mb-1">
+                         <Label className="text-xs font-medium text-muted-foreground">Opsi Jawaban & Kunci (Pilih Radio)</Label>
                       </div>
-                    ))}
-                  </div>
-                )}
-
-                {q.tipe === "benar_salah" && (
-                  <div className="flex gap-4 pl-4 border-l-2 border-primary/20">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name={`correct-${qIndex}`}
-                        checked={q.jawaban_benar === "true"}
-                        onChange={() =>
-                          updateQuestion(qIndex, { jawaban_benar: "true" })
-                        }
-                      />
-                      <Label>Benar</Label>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        {q.opsi.choices.map((choice: string, cIndex: number) => (
+                          <div key={cIndex} className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name={`correct-${qIndex}`}
+                              checked={String(q.jawaban_benar) === String(cIndex)}
+                              onChange={() =>
+                                updateQuestion(qIndex, {
+                                  jawaban_benar: String(cIndex),
+                                })
+                              }
+                              className="h-3.5 w-3.5 text-primary cursor-pointer accent-primary"
+                            />
+                            <Input
+                              placeholder={`Pilihan ${String.fromCharCode(65 + cIndex)}`}
+                              value={choice}
+                              onChange={(e) => {
+                                const newChoices = [...q.opsi.choices];
+                                newChoices[cIndex] = e.target.value;
+                                updateQuestion(qIndex, {
+                                  opsi: { ...q.opsi, choices: newChoices },
+                                });
+                              }}
+                              className="h-8 text-xs"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name={`correct-${qIndex}`}
-                        checked={q.jawaban_benar === "false"}
-                        onChange={() =>
-                          updateQuestion(qIndex, { jawaban_benar: "false" })
+                  )}
+
+                  {q.tipe === "benar_salah" && (
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-muted-foreground">Kunci Jawaban</Label>
+                      <div className="flex gap-6">
+                        <div className="flex items-center gap-2 bg-background border rounded-md px-3 py-1.5 cursor-pointer hover:bg-accent/50 transition-colors">
+                          <input
+                            type="radio"
+                            id={`q${qIndex}-true`}
+                            name={`correct-${qIndex}`}
+                            checked={q.jawaban_benar === "true"}
+                            onChange={() =>
+                              updateQuestion(qIndex, { jawaban_benar: "true" })
+                            }
+                            className="h-3.5 w-3.5 text-primary accent-primary cursor-pointer"
+                          />
+                          <Label htmlFor={`q${qIndex}-true`} className="text-xs cursor-pointer">BENAR</Label>
+                        </div>
+                        <div className="flex items-center gap-2 bg-background border rounded-md px-3 py-1.5 cursor-pointer hover:bg-accent/50 transition-colors">
+                          <input
+                            type="radio"
+                            id={`q${qIndex}-false`}
+                            name={`correct-${qIndex}`}
+                            checked={q.jawaban_benar === "false"}
+                            onChange={() =>
+                              updateQuestion(qIndex, { jawaban_benar: "false" })
+                            }
+                            className="h-3.5 w-3.5 text-primary accent-primary cursor-pointer"
+                          />
+                          <Label htmlFor={`q${qIndex}-false`} className="text-xs cursor-pointer">SALAH</Label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {q.tipe === "isian_singkat" && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">Kunci Jawaban</Label>
+                      <Input
+                        placeholder="Contoh: Jakarta"
+                        value={q.jawaban_benar || ""}
+                        onChange={(e) =>
+                          updateQuestion(qIndex, {
+                            jawaban_benar: e.target.value,
+                          })
                         }
+                        className="h-8 text-xs max-w-md"
                       />
-                      <Label>Salah</Label>
+                    </div>
+                  )}
+
+                  {/* Explanation Field */}
+                  <div className="pt-2 mt-2 border-t border-border/50">
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Penjelasan (Opsional)
+                      </Label>
+                      <Textarea
+                        placeholder="Jelaskan kenapa jawaban ini benar..."
+                        value={q.penjelasan || ""}
+                        onChange={(e) =>
+                          updateQuestion(qIndex, { penjelasan: e.target.value })
+                        }
+                        rows={1}
+                        className="min-h-[40px] text-xs resize-none bg-background/50 focus:bg-background transition-colors"
+                      />
                     </div>
                   </div>
-                )}
-
-                {q.tipe === "isian_singkat" && (
-                  <div className="space-y-2 pl-4 border-l-2 border-primary/20">
-                    <Label>Jawaban Benar</Label>
-                    <Input
-                      placeholder="Masukkan kunci jawaban..."
-                      value={q.jawaban_benar || ""}
-                      onChange={(e) =>
-                        updateQuestion(qIndex, {
-                          jawaban_benar: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-2 pt-2">
-                  <Label className="text-xs text-muted-foreground">
-                    Penjelasan Jawaban (Opsional)
-                  </Label>
-                  <Textarea
-                    placeholder="Berikan alasan mengapa jawaban tersebut benar..."
-                    value={q.penjelasan || ""}
-                    onChange={(e) =>
-                      updateQuestion(qIndex, { penjelasan: e.target.value })
-                    }
-                    rows={2}
-                    className="text-sm"
-                  />
                 </div>
               </CardContent>
             </Card>
@@ -344,11 +363,12 @@ export function QuizBuilder({ assessmentId, onSaveSuccess }: QuizBuilderProps) {
       </div>
 
       {questions.length > 0 && (
-        <div className="flex justify-end pt-4">
-          <Button onClick={handleSave} disabled={saveMutation.isPending}>
+        <div className="flex justify-end pt-2">
+          <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending} className="h-8 text-xs px-6">
+            <Save className="mr-1.5 h-3.5 w-3.5" />
             {saveMutation.isPending
-              ? "Menyimpan Semua Pertanyaan..."
-              : "Simpan Semua Pertanyaan"}
+              ? "Menyimpan..."
+              : "Simpan Perubahan"}
           </Button>
         </div>
       )}
