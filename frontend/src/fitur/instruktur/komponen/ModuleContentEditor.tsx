@@ -64,7 +64,7 @@ import type {
   CreateContentData,
   ContentType,
 } from "../api/contentApi";
-import type { Assessment } from "../tipe/instructor.types";
+import type { Assessment, AssessmentType } from "../tipe/instructor.types";
 import { AssessmentEditorDialog } from "./AssessmentEditorDialog";
 import { QuizBuilder } from "./QuizBuilder";
 import { AssignmentBuilder } from "./AssignmentBuilder";
@@ -286,6 +286,8 @@ export function ModuleContentEditor({
   const [editingAssessment, setEditingAssessment] = useState<Assessment | null>(
     null,
   );
+  const [defaultAssessmentType, setDefaultAssessmentType] = useState<AssessmentType>("kuis");
+
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
   const [activeBuilderAssessment, setActiveBuilderAssessment] =
     useState<Assessment | null>(null);
@@ -489,6 +491,7 @@ export function ModuleContentEditor({
           className="h-8 text-xs"
           onClick={() => {
             setEditingAssessment(null);
+            setDefaultAssessmentType("kuis");
             setIsAssessmentDialogOpen(true);
           }}
         >
@@ -500,6 +503,7 @@ export function ModuleContentEditor({
           className="h-8 text-xs"
           onClick={() => {
             setEditingAssessment(null);
+            setDefaultAssessmentType("tugas");
             setIsAssessmentDialogOpen(true);
           }}
         >
@@ -642,7 +646,6 @@ export function ModuleContentEditor({
           </div>
         </DialogContent>
       </Dialog>
-
       {/* Assessment Dialogs */}
       <AssessmentEditorDialog
         isOpen={isAssessmentDialogOpen}
@@ -650,6 +653,7 @@ export function ModuleContentEditor({
         kursusId={kursusId}
         moduleId={moduleId}
         assessment={editingAssessment}
+        defaultType={defaultAssessmentType}
       />
 
       <Dialog open={isBuilderOpen} onOpenChange={setIsBuilderOpen}>

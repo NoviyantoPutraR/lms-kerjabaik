@@ -31,6 +31,7 @@ interface AssessmentEditorDialogProps {
   kursusId: string;
   moduleId?: string;
   assessment?: Assessment | null;
+  defaultType?: AssessmentType;
 }
 
 export function AssessmentEditorDialog({
@@ -39,10 +40,11 @@ export function AssessmentEditorDialog({
   kursusId,
   moduleId,
   assessment,
+  defaultType = "kuis",
 }: AssessmentEditorDialogProps) {
   const [judul, setJudul] = useState("");
   const [deskripsi, setDeskripsi] = useState("");
-  const [tipe, setTipe] = useState<AssessmentType>("kuis");
+  const [tipe, setTipe] = useState<AssessmentType>(defaultType);
   const [passingScore, setPassingScore] = useState(70);
   const [durasiMenit, setDurasiMenit] = useState(0);
   const [jumlahPercobaan, setJumlahPercobaan] = useState(1);
@@ -69,7 +71,7 @@ export function AssessmentEditorDialog({
     } else {
       setJudul("");
       setDeskripsi("");
-      setTipe("kuis");
+      setTipe(defaultType);
       setPassingScore(70);
       setDurasiMenit(0);
       setJumlahPercobaan(1);
@@ -77,7 +79,7 @@ export function AssessmentEditorDialog({
       setTampilkanJawaban(true);
       setStatus("draft");
     }
-  }, [assessment, isOpen]);
+  }, [assessment, isOpen, defaultType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +128,7 @@ export function AssessmentEditorDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader className="px-6 py-4 border-b bg-muted/40">
             <DialogTitle className="text-lg">
-              {assessment ? "Edit Asesmen" : "Tambah Asesmen Baru"}
+              {assessment ? "Edit Asesmen" : `Tambah ${defaultType === "kuis" ? "Kuis" : "Tugas"} Baru`}
             </DialogTitle>
           </DialogHeader>
 
@@ -138,7 +140,7 @@ export function AssessmentEditorDialog({
                 id="judul"
                 value={judul}
                 onChange={(e) => setJudul(e.target.value)}
-                placeholder="Contoh: Kuis Akhir Modul 1"
+                placeholder={defaultType === "kuis" ? "Contoh: Kuis Akhir Modul 1" : "Contoh: Tugas Praktik Coding"}
                 required
                 className="h-9"
               />
@@ -163,7 +165,7 @@ export function AssessmentEditorDialog({
                 <Select
                   value={tipe}
                   onValueChange={(value) => setTipe(value as AssessmentType)}
-                  disabled={!!assessment}
+                  disabled={!!assessment || !!defaultType}
                 >
                   <SelectTrigger id="tipe" className="h-8 text-xs">
                     <SelectValue placeholder="Pilih tipe" />
@@ -171,7 +173,6 @@ export function AssessmentEditorDialog({
                   <SelectContent>
                     <SelectItem value="kuis">Kuis (Auto)</SelectItem>
                     <SelectItem value="tugas">Tugas (Manual)</SelectItem>
-                    <SelectItem value="ujian">Ujian</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
