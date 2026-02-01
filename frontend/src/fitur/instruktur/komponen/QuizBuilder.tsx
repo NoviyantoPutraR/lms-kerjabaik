@@ -227,8 +227,6 @@ export function QuizBuilder({ assessmentId, onSaveSuccess }: QuizBuilderProps) {
                         <SelectContent>
                           <SelectItem value="pilihan_ganda">Pilihan Ganda</SelectItem>
                           <SelectItem value="benar_salah">Benar/Salah</SelectItem>
-                          <SelectItem value="isian_singkat">Isian Singkat</SelectItem>
-                          <SelectItem value="esai">Esai</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -319,22 +317,6 @@ export function QuizBuilder({ assessmentId, onSaveSuccess }: QuizBuilderProps) {
                           <Label htmlFor={`q${qIndex}-false`} className="text-xs cursor-pointer">SALAH</Label>
                         </div>
                       </div>
-                    </div>
-                  )}
-
-                  {q.tipe === "isian_singkat" && (
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">Kunci Jawaban</Label>
-                      <Input
-                        placeholder="Contoh: Jakarta"
-                        value={q.jawaban_benar || ""}
-                        onChange={(e) =>
-                          updateQuestion(qIndex, {
-                            jawaban_benar: e.target.value,
-                          })
-                        }
-                        className="h-8 text-xs max-w-md"
-                      />
                     </div>
                   )}
 

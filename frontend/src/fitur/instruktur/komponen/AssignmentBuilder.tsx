@@ -2,8 +2,8 @@ import { useState } from "react";
 import { pemberitahuan } from "@/pustaka/pemberitahuan";
 import { Button } from "@/komponen/ui/button";
 import { Label } from "@/komponen/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/komponen/ui/card";
-import { Save, Info } from "lucide-react";
+import { Card, CardContent } from "@/komponen/ui/card";
+import { Save, Info, FileText } from "lucide-react";
 import { useUpdateAssessment } from "../hooks/useAssessments";
 import type { Assessment } from "../tipe/instructor.types";
 import TextEditor from "@/komponen/ui/TextEditor";
@@ -42,52 +42,62 @@ export function AssignmentBuilder({
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Info className="h-5 w-5 text-blue-500" />
-            Instruksi Tugas
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-sm text-muted-foreground">
-              Tuliskan detail tugas, kriteria penilaian, dan instruksi
-              pengumpulan untuk mahasiswa.
-            </Label>
-            <div className="min-h-[300px] border rounded-md">
-              <TextEditor
-                value={instructions}
-                onChange={setInstructions}
-                placeholder="Tulis instruksi tugas di sini..."
-              />
-            </div>
-          </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b pb-3 mb-2">
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          Editor Instruksi Tugas
+        </h3>
+        <Button
+          size="sm"
+          onClick={handleSave}
+          disabled={updateMutation.isPending}
+          className="h-8 text-xs bg-primary"
+        >
+          <Save className="mr-1.5 h-3.5 w-3.5" />
+          {updateMutation.isPending ? "Menyimpan..." : "Simpan Instruksi"}
+        </Button>
+      </div>
 
-          <div className="flex justify-end pt-4">
-            <Button onClick={handleSave} disabled={updateMutation.isPending}>
-              <Save className="mr-2 h-4 w-4" />
-              {updateMutation.isPending
-                ? "Menyimpan..."
-                : "Simpan Instruksi Tugas"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12 lg:col-span-8 space-y-3">
+          <Card className="border-border/60 shadow-sm">
+            <CardContent className="p-0">
+               <div className="bg-muted/30 border-b px-4 py-2">
+                <Label className="text-xs font-medium text-muted-foreground">Area Editor</Label>
+               </div>
+               <div className="p-0 min-h-[400px]">
+                <TextEditor
+                  value={instructions}
+                  onChange={setInstructions}
+                  placeholder="Tulis instruksi tugas lengkap, kriteria penilaian, dan format pengumpulan..."
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 flex gap-3">
-        <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-        <div className="text-sm text-blue-800">
-          <p className="font-semibold">Tips:</p>
-          <ul className="list-disc list-inside space-y-1 mt-1">
-            <li>Gunakan format yang jelas untuk poin-poin tugas.</li>
-            <li>Sebutkan format file yang diharapkan (PDF, Link, dll).</li>
-            <li>
-              Cantumkan kriteria penilaian agar mahasiswa paham standar yang
-              diharapkan.
-            </li>
-          </ul>
+        <div className="col-span-12 lg:col-span-4 space-y-4">
+          <Card className="bg-blue-50/50 border-blue-100 shadow-sm">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start gap-2 text-blue-700">
+                <Info className="h-4 w-4 shrink-0 mt-0.5" />
+                <h4 className="font-semibold text-sm">Validasi & Tips</h4>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="text-xs text-muted-foreground space-y-1.5">
+                  <p>Pastikan instruksi mencakup:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-1 text-foreground/80">
+                    <li>Latar belakang & Tujuan tugas</li>
+                    <li>Langkah-langkah pengerjaan detil</li>
+                    <li>Format hasil akhir (PDF, Video, Link)</li>
+                    <li>Tenggat waktu & Bobot nilai</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
